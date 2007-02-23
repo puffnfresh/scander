@@ -88,8 +88,13 @@ function printDir($dir) {
 
 function downloadFile($file) {
 	$filename = basename($file);
-	header('Content-type: foo');
-	header("Content-Disposition: attachment; filename=\"$filename\"");
+	if(function_exists(mime_content_type)) {
+		$contype = mime_content_type($file);
+	} else {
+		$contype = 'foo';
+		header("Content-Disposition: attachment; filename=\"$filename\"");
+	}
+	header("Content-type: $contype");
 	echo file_get_contents($file);
 	die;
 }
