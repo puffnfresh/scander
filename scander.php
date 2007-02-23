@@ -141,8 +141,10 @@ function deleteSubject($subject) {
 
 function evaluateBox() {
 	if ($_POST['v'] === NULL) {
-		echo '<input id="v" type="textbox"><input id="evalbtn" type="button" value="Run" onclick="execEval()" >
+		echo '<form action="javascript://" onsubmit="execEval()">
+<input id="v" type="textbox"><input id="evalbtn" type="submit" value="Run">
 <div id="command_output"></div>
+</form>
 ';
 	} else {
 		ob_clean();
