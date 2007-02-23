@@ -319,7 +319,6 @@ function execEval() {
 			}
 		}
 		evalBtn.disabled = false;
-		evalBtn.value = "Run";
 	}
 	ajax.open("POST", "?action=eval", true);
 	ajax.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
