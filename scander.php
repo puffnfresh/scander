@@ -21,9 +21,10 @@ function url($str) {
 
 // set up some variables
 $subject = isset($_GET['s']) ? realpath(gpc($_GET['s'])) : realpath(dirname($_SERVER['SCRIPT_FILENAME']));
-$upDir = realpath($subject . "/..");
+if (!$subject) $subject = gpc($_GET['s']);
 $action = isset($_GET['action']) ? gpc($_GET['action']) : 'dir';
 $param = isset($_GET['p']) ? gpc($_GET['p']) : false;
+$upDir = realpath($subject . ($param != 'new' ? '/..' : ''));
 $value = isset($_POST['v']) ? gpc($_POST['v']) : false;
 
 
@@ -315,7 +316,7 @@ switch ($action) {
 		break;
 	case 'save':
 		ob_clean();
-		saveFile(gpc($_GET['s']), $value); // not using realpath() because it blanks the string for some reason
+		saveFile($subject, $value);
 		break;
 	case 'dir':
 		printDir($subject);
