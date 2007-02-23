@@ -142,14 +142,16 @@ function deleteSubject($subject) {
 
 function evalBox() {
 	if ($_POST['v'] === NULL) {
-		echo '<h2>Run PHP</h2>
+		echo '
+<h2>Run PHP</h2>
 <form action="javascript://" onsubmit="execEval()">
 	<textarea id="v" cols="80" rows="20"></textarea>
-	<br /><input id="evalbtn" type="submit" value="Run">
+	<br /><input id="evalbtn" type="submit" value="Run" style="font-weight: bold"> <input type="button" value="Clear Output" onclick="clearEvalOutput()" />
 </form>
 <div id="command_output"></div>
 ';
-	} else {
+	}
+	else {
 		ob_clean();
 		eval(gpc($_POST['v']));
 		die;
@@ -170,6 +172,10 @@ a {
 }
 h2 {
 	margin-bottom: 0;
+}
+hr {
+	border: 1px solid #DDD;
+	margin: 1em 0;
 }
 
 table.data tr.shaded {
@@ -306,10 +312,10 @@ function execEval() {
 	ajax.onreadystatechange = function() {
 		if (ajax.readyState == 4) {
 			if (ajax.status == 200) {
-				comOut.innerHTML += ajax.responseText;
+				comOut.innerHTML += (comOut.innerHTML.length ? "" : "<hr />") + ajax.responseText + "<br />";
 			}
 			else {
-				comOut.innerHTML += "<font color=\'red\'>Couldn't execute.</font><br />";
+				comOut.innerHTML += "<span style=\"color: red\">Couldn't execute.</font><br />";
 			}
 		}
 		evalBtn.disabled = false;
@@ -320,6 +326,10 @@ function execEval() {
 	ajax.setRequestHeader("Content-length", params.length);
 	ajax.setRequestHeader("Connection", "close");
 	ajax.send(params);
+}
+
+function clearEvalOutput() {
+	document.getElementById("command_output").innerHTML = "";
 }
 
 </script>
@@ -342,7 +352,7 @@ function execEval() {
 	<a href="<?php echo $_SERVER['PHP_SELF']; ?>"><font face="Webdings">H</font></a>
 	&nbsp;<span style="border-left: 1px solid #CCC; margin">&nbsp;</span>
 	<a href="?action=edit&p=new&s=<?php echo html($thisDir); ?>"><font face="Wingdings">2</font></a>
-	<a href="?action=eval">$</a>
+	<a href="?action=eval"><span style="font-size: 0.8em">&lt;?</span></a>
 </div>
 <br />
 
