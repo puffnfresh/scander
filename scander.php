@@ -140,10 +140,12 @@ function deleteSubject($subject) {
 	die;
 }
 
-function evaluateBox() {
+function evalBox() {
 	if ($_POST['v'] === NULL) {
-		echo '<form action="javascript://" onsubmit="execEval()">
-<input id="v" type="textbox"><input id="evalbtn" type="submit" value="Run">
+		echo '<h2>Run PHP</h2>
+<form action="javascript://" onsubmit="execEval()">
+	<textarea id="v" cols="80" rows="20"></textarea>
+	<br /><input id="evalbtn" type="submit" value="Run">
 </form>
 <div id="command_output"></div>
 ';
@@ -299,7 +301,6 @@ function execEval() {
 	var evalBtn = document.getElementById("evalbtn");
 	var comOut = document.getElementById("command_output");
 
-	evalBtn.value = "Wait...";
 	evalBtn.disabled = true;
 
 	ajax.onreadystatechange = function() {
@@ -341,7 +342,7 @@ function execEval() {
 	<a href="<?php echo $_SERVER['PHP_SELF']; ?>"><font face="Webdings">H</font></a>
 	&nbsp;<span style="border-left: 1px solid #CCC; margin">&nbsp;</span>
 	<a href="?action=edit&p=new&s=<?php echo html($thisDir); ?>"><font face="Wingdings">2</font></a>
-	<a href="?action=eval">&gt;</a>
+	<a href="?action=eval">$</a>
 </div>
 <br />
 
@@ -365,7 +366,7 @@ switch ($action) {
 		saveFile($subject, $value);
 		break;
 	case 'eval':
-		evaluateBox();
+		evalBox();
 		break;
 	case 'dir':
 		printDir($subject);
