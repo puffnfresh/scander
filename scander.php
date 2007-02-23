@@ -1,10 +1,8 @@
 <?php
 
-// testz0r
-
 // change php.ini settings
 ini_set('memory_limit', '1024M'); // 1GB
-ini_set('max_execution_time', '3600'); // 1 hour
+ini_set('max_execution_time', '0');
 ini_set('register_globals', 'Off');
 
 DEFINE('MQ', ini_get('magic_quotes_gpc'));
@@ -25,6 +23,7 @@ function url($str) {
 $subject = isset($_GET['s']) ? realpath(gpc($_GET['s'])) : realpath(dirname($_SERVER['SCRIPT_FILENAME']));
 $upDir = realpath($subject . "/..");
 $action = isset($_GET['action']) ? gpc($_GET['action']) : 'dir';
+$param = isset($_GET['p']) ? gpc($_GET['p']) : false;
 $value = isset($_POST['v']) ? gpc($_POST['v']) : false;
 
 
@@ -46,7 +45,7 @@ function printDir($dir) {
 	
 	echo '
 <table class="data">
-<th>&nbsp;</th><th>Name</th><th>Bytes</th><th>Changed</th><th>&nbsp;</th>';
+<th>&nbsp;</th><th width=\"350\">Name</th><th width=\"90\">Bytes</th><th width=\"150\">Changed</th><th>&nbsp;</th>';
 	
 	foreach ($entries as $z => $i) {
 		if (preg_match('/^\.+$/', $i)) continue;
@@ -85,26 +84,39 @@ function printDir($dir) {
 
 function downloadFile($file) {
 	$filename = basename($file);
+	header('Content-type: foo');
 	header("Content-Disposition: attachment; filename=\"$filename\"");
-	echo file_get_contents($subject);
+	echo file_get_contents($file);
 	die;
 }
 
-function editFile($filename) {
+function editFile($filename, $new) {
+	global $upDir;
+	
 	$filename = realpath($filename);
-	if (!is_file($filename)) {
+	/*if (!is_file($filename)) {
 		echo '<strong>Error:</strong> Not a file or doesn\'t exist';
 		return;
-	}
+	}*/
 	
 	$name = basename($filename);
 	$file = file_get_contents($filename);
+	$title = $new ? '<input type="text" id="f" size="89" style="font-size: 1.4em" /><br />' : '<h2>'.html($name).'</h2>
+	<input type="hidden" id="f" size="120" value="'.html($filename).'" />';
+	$saveArgs = $new ? "'".addslashes($filename)."\\\\' + document.getElementById('f').value, document.getElementById('v').value" : "document.getElementById('f').value, document.getElementById('v').value";
 	
-	echo "
-<h2>".html($name)."</h2>
+	/*echo "
+$title
 
-<textarea id=\"v\" cols=\"90\" rows=\"25\" onchange=\"setSaveStatus('Unsaved')\">".html($file)."</textarea><br />
-<input type=\"button\" onclick=\"save('".html(addslashes($filename))."', document.getElementById('v').value);\" value=\"Save\" style=\"font-weight: bold\" /> <input type=\"button\" value=\"Exit\" onclick=\"history.go(-1);\" /> <span id=\"saveStatus\"></span>
+<textarea id=\"v\" cols=\"90\" rows=\"25\" onchange=\"setSaveStatus('Unsaved', false)\">".html($file)."</textarea><br />
+<input type=\"button\" onclick=\"save('".html(addslashes($filename))."', document.getElementById('v').value);\" value=\"Save\" id=\"saveBtn\" style=\"font-weight: bold\" /> <input type=\"button\" value=\"Exit\" id=\"exitBtn\" onclick=\"browseDir('".addslashes($upDir)."');\" /> <span id=\"saveStatus\"></span>
+";*/
+
+	echo "
+$title
+
+<textarea id=\"v\" cols=\"90\" rows=\"25\" onchange=\"setSaveStatus('Unsaved', false)\">".html($file)."</textarea><br />
+<input type=\"button\" onclick=\"save($saveArgs);\" value=\"Save\" id=\"saveBtn\" style=\"font-weight: bold\" /> <input type=\"button\" value=\"Exit\" id=\"exitBtn\" onclick=\"browseDir('".addslashes($upDir)."');\" /> <span id=\"saveStatus\"></span>
 ";
 }
 
@@ -159,6 +171,7 @@ table.data td a:hover {
 
 .icon {
 	text-decoration: none;
+	display: block;
 	color: black;
 }
 
@@ -227,16 +240,19 @@ function save(file, value) {
 	var ajax = newXMLHTTP();
 	var params = "v=" + escape(value);
 	var saveStatus = document.getElementById("saveStatus");
+	var filenameBox = document.getElementById("f");
 	
-	saveStatus.innerHTML = "Saving...";
+	setSaveStatus("Saving...", true);
 	ajax.onreadystatechange = function() {
 		if (ajax.readyState == 4) {
 			if (ajax.responseText == "1") {
-				setSaveStatus("Saved");
+				setSaveStatus("Saved", false);
+				filenameBox.disabled = true;
 			}
 			else {
-				setSaveStatus("Save failed");
+				setSaveStatus("Save failed", false);
 			}
+			saveBtn.enabled = true;
 		}
 	}
 	ajax.open("POST", "?action=save&s=" + escape(file), true);
@@ -246,8 +262,16 @@ function save(file, value) {
 	ajax.send(params);
 }
 
-function setSaveStatus(status) {
+function setSaveStatus(status, disable) {
+	var saveBtn = document.getElementById("saveBtn");
+	var exitBtn = document.getElementById("exitBtn");
+	
+	saveBtn.disabled = exitBtn.disabled = disable;
 	saveStatus.innerHTML = status;
+}
+
+function browseDir(dir) {
+	location.href = "?action=dir&s=" + dir;
 }
 
 </script>
@@ -258,7 +282,8 @@ function setSaveStatus(status) {
 
 <form method="get">
 	<input type="hidden" name="action" value="dir" />
-	<input type="text" size="80" name="s" value="<?php echo html($subject); ?>" /> <input type="submit" value="Go" />
+	<input type="text" size="90" name="s" value="<?php echo html($subject); ?>" />
+	<input type="submit" value="Go" style="font-weight: bold" />
 </form>
 
 <div id="nav">
@@ -268,7 +293,7 @@ function setSaveStatus(status) {
 	<a href="javascript://" onclick="location.reload(true)"><font face="Webdings">q</font></a>
 	<a href="<?php echo $_SERVER['PHP_SELF']; ?>"><font face="Webdings">H</font></a>
 	&nbsp;<span style="border-left: 1px solid #CCC; margin">&nbsp;</span>
-	<a href="javascript://"><font face="Wingdings">2</font></a>
+	<a href="?action=edit&p=new&s=<?php echo html($subject); ?>"><font face="Wingdings">2</font></a>
 	
 </div>
 <br />
@@ -286,11 +311,11 @@ switch ($action) {
 		downloadFile($subject);
 		break;
 	case 'edit':
-		editFile($subject);
+		editFile($subject, $param == 'new');
 		break;
 	case 'save':
 		ob_clean();
-		saveFile($subject, $value);
+		saveFile(gpc($_GET['s']), $value); // not using realpath() because it blanks the string for some reason
 		break;
 	case 'dir':
 		printDir($subject);
