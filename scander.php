@@ -351,7 +351,7 @@ function clearEvalOutput() {
 	<a href="<?php echo $_SERVER['PHP_SELF']; ?>"><font face="Webdings">H</font></a>
 	&nbsp;<span style="border-left: 1px solid #CCC; margin">&nbsp;</span>
 	<a href="?action=edit&p=new&s=<?php echo html($thisDir); ?>"><font face="Wingdings">2</font></a>
-	<a href="?action=eval"><span style="font-size: 0.8em">&lt;?</span></a>
+	<a href="?action=eval&s=<?php echo html($thisDir); ?>"><span style="font-size: 0.8em">&lt;?</span></a>
 </div>
 <br />
 
