@@ -7,6 +7,8 @@ ini_set('register_globals', 'Off');
 
 DEFINE('MQ', ini_get('magic_quotes_gpc'));
 
+ob_start();
+
 // generic functions
 function gpc($str) {
 	if (MQ) return stripslashes($str);
