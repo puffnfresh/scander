@@ -26,7 +26,8 @@ $subject = isset($_GET['s']) ? realpath(gpc($_GET['s'])) : realpath(dirname($_SE
 if (!$subject) $subject = gpc($_GET['s']);
 $action = isset($_GET['action']) ? gpc($_GET['action']) : 'dir';
 $param = isset($_GET['p']) ? gpc($_GET['p']) : false;
-$upDir = realpath($subject . ($param != 'new' ? '/..' : ''));
+$thisDir = realpath($subject . (is_file($subject) ? '/..' : ''));
+$upDir = realpath("$subject/..");
 $value = isset($_POST['v']) ? gpc($_POST['v']) : false;
 
 
@@ -94,7 +95,7 @@ function downloadFile($file) {
 }
 
 function editFile($filename, $new) {
-	global $upDir;
+	global $thisDir;
 	
 	$filename = realpath($filename);
 	/*if (!is_file($filename)) {
@@ -106,20 +107,20 @@ function editFile($filename, $new) {
 	$file = file_get_contents($filename);
 	$title = $new ? '<input type="text" id="f" size="89" style="font-size: 1.4em" /><br />' : '<h2>'.html($name).'</h2>
 	<input type="hidden" id="f" size="120" value="'.html($filename).'" />';
-	$saveArgs = $new ? "'".addslashes($filename)."\\\\' + document.getElementById('f').value, document.getElementById('v').value" : "document.getElementById('f').value, document.getElementById('v').value";
+	$saveArgs = $new ? "'".addslashes($filename)."/' + document.getElementById('f').value, document.getElementById('v').value" : "document.getElementById('f').value, document.getElementById('v').value";
 	
 	/*echo "
 $title
 
 <textarea id=\"v\" cols=\"90\" rows=\"25\" onchange=\"setSaveStatus('Unsaved', false)\">".html($file)."</textarea><br />
-<input type=\"button\" onclick=\"save('".html(addslashes($filename))."', document.getElementById('v').value);\" value=\"Save\" id=\"saveBtn\" style=\"font-weight: bold\" /> <input type=\"button\" value=\"Exit\" id=\"exitBtn\" onclick=\"browseDir('".addslashes($upDir)."');\" /> <span id=\"saveStatus\"></span>
+<input type=\"button\" onclick=\"save('".html(addslashes($filename))."', document.getElementById('v').value);\" value=\"Save\" id=\"saveBtn\" style=\"font-weight: bold\" /> <input type=\"button\" value=\"Exit\" id=\"exitBtn\" onclick=\"browseDir('".addslashes($thisDir)."');\" /> <span id=\"saveStatus\"></span>
 ";*/
 
 	echo "
 $title
 
 <textarea id=\"v\" cols=\"90\" rows=\"25\" onchange=\"setSaveStatus('Unsaved', false)\">".html($file)."</textarea><br />
-<input type=\"button\" onclick=\"save($saveArgs);\" value=\"Save\" id=\"saveBtn\" style=\"font-weight: bold\" /> <input type=\"button\" value=\"Exit\" id=\"exitBtn\" onclick=\"browseDir('".addslashes($upDir)."');\" /> <span id=\"saveStatus\"></span>
+<input type=\"button\" onclick=\"save($saveArgs);\" value=\"Save\" id=\"saveBtn\" style=\"font-weight: bold\" /> <input type=\"button\" value=\"Exit\" id=\"exitBtn\" onclick=\"browseDir('".addslashes($thisDir)."');\" /> <span id=\"saveStatus\"></span>
 ";
 }
 
@@ -339,8 +340,8 @@ function execEval() {
 	<a href="javascript://" onclick="location.reload(true)"><font face="Webdings">q</font></a>
 	<a href="<?php echo $_SERVER['PHP_SELF']; ?>"><font face="Webdings">H</font></a>
 	&nbsp;<span style="border-left: 1px solid #CCC; margin">&nbsp;</span>
-	<a href="?action=edit&p=new&s=<?php echo html($subject); ?>"><font face="Wingdings">2</font></a>
-	
+	<a href="?action=edit&p=new&s=<?php echo html($thisDir); ?>"><font face="Wingdings">2</font></a>
+	<a href="?action=eval">&gt;</a>
 </div>
 <br />
 
