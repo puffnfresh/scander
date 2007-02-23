@@ -88,7 +88,7 @@ function printDir($dir) {
 
 function downloadFile($file) {
 	$filename = basename($file);
-	if(function_exists(mime_content_type)) {
+	if (function_exists('mime_content_type')) {
 		$contype = mime_content_type($file);
 	} else {
 		$contype = 'foo';
