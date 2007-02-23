@@ -143,8 +143,8 @@ function evaluateBox() {
 	if ($_POST['v'] === NULL) {
 		echo '<form action="javascript://" onsubmit="execEval()">
 <input id="v" type="textbox"><input id="evalbtn" type="submit" value="Run">
-<div id="command_output"></div>
 </form>
+<div id="command_output"></div>
 ';
 	} else {
 		ob_clean();
