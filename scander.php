@@ -323,8 +323,8 @@ function execEval() {
 			else {
 				comOut.innerHTML += "<span style=\"color: red\">Couldn't execute.</font><br />";
 			}
+			evalBtn.disabled = false;
 		}
-		evalBtn.disabled = false;
 	}
 	ajax.open("POST", "?action=eval", true);
 	ajax.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
