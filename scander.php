@@ -126,11 +126,11 @@ function uploadFile($outdir) {
 		for ($i = 0; $i < count($file['name']); $i++) {
 			if (strlen($file['name'][$i]) == 0) continue;
 			
-			if (move_uploaded_file($file['tmp_name'][$i], $outdir . $file['name'][$i])) {
+			if (@move_uploaded_file($file['tmp_name'][$i], $outdir . $file['name'][$i])) {
 				echo "\t<li><b>".html($file['name'][$i])."</b> successfully uploaded.</li>\r\n";
 			}
 			else {
-				echo "\tUploading <b>".html($file['name'][$i])."</b> failed.</li>\r\n";
+				echo "\t<li>Uploading <b>".html($file['name'][$i])."</b> failed.</li>\r\n";
 			}
 		}
 		echo '</ul>';
