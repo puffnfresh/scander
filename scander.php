@@ -26,7 +26,8 @@ $subject = isset($_GET['s']) ? realpath(gpc($_GET['s'])) : realpath(dirname($_SE
 if (!$subject) $subject = gpc($_GET['s']);
 $action = isset($_GET['action']) ? gpc($_GET['action']) : 'dir';
 $param = isset($_GET['p']) ? gpc($_GET['p']) : false;
-$thisDir = realpath($subject . (is_file($subject) ? '/..' : ''));
+//$thisDir = realpath($subject . (is_file($subject) ? '/..' : ''));
+$thisDir = realpath(is_file($subject) ? dirname($subject) : $subject);
 $upDir = realpath("$subject/..");
 $value = isset($_POST['v']) ? gpc($_POST['v']) : false;
 
@@ -123,7 +124,7 @@ function uploadFile($outdir) {
 	}
 }
 
-function editFile($filename, $new) {
+function editFile($filename, $new=false) {
 	global $thisDir;
 	
 	$filename = realpath($filename);
@@ -190,10 +191,15 @@ function evalBox($command) {
 	}
 }
 
-function printCSS() {
-	ob_end_clean();
-	header('Content-Type: text/css');
-	echo 'body, td {
+header('Content-Type: text/html; charset=ISO-8859-1');
+?>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<title>Scander</title>
+<link rel="stylesheet" href="?action=getcss" type="text/css" />
+<style type="text/css">
+body, td {
 	font: 80% sans-serif;
 }
 a {
@@ -245,14 +251,9 @@ table.data td a:hover {
 	color: #555;
 	background-color: #FFF;
 }
-';
-	die;
-}
-
-function printJS() {
-	ob_end_clean();
-	header('Content-Type: text/javascript');
-	echo 'function newXMLHTTP() {
+</style>
+<script type="text/javascript">
+function newXMLHTTP() {
 	try {
 		return new XMLHttpRequest();
 	}
@@ -347,7 +348,7 @@ function execEval() {
 				comOut.innerHTML += (comOut.innerHTML.length ? "" : "<hr />") + ajax.responseText + "<br />";
 			}
 			else {
-				comOut.innerHTML += "<span style=\"color: red\">Couldn\'t execute.</font><br />";
+				comOut.innerHTML += "<span style=\"color: red\">Couldn't execute.</font><br />";
 			}
 			evalBtn.disabled = false;
 		}
@@ -362,18 +363,7 @@ function execEval() {
 function clearEvalOutput() {
 	document.getElementById("command_output").innerHTML = "";
 }
-';
-	die;
-}
-
-header('Content-Type: text/html; charset=ISO-8859-1');
-?>
-<html>
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
-<title>Scander</title>
-<link rel="stylesheet" href="?action=getcss" type="text/css" />
-<script type="text/javascript" src="?action=getjs"></script>
+</script>
 </head>
 
 <body>
@@ -426,12 +416,6 @@ switch ($action) {
 		break;
 	case 'dir':
 		printDir($subject);
-		break;
-	case 'getcss':
-		printCSS();
-		break;
-	case 'getjs':
-		printJS();
 		break;
 	default:
 		printDir($subject);
