@@ -238,6 +238,10 @@ table.data td a:hover {
 	display: block;
 	color: black;
 }
+.note {
+	color: #555;
+	font-size: 0.8em;
+}
 
 #nav {
 	font-size: 180%;
@@ -256,6 +260,19 @@ table.data td a:hover {
 }
 </style>
 <script type="text/javascript">
+
+function init() {
+<?php
+
+switch ($action) {
+	case 'ul':
+		echo "\tnewUploadBox(false);";
+		break;
+}
+
+?>
+
+}
 
 function newXMLHTTP() {
 	try {
@@ -384,7 +401,7 @@ function newUploadBox(caller) {
 </script>
 </head>
 
-<body onload="newUploadBox(false)">
+<body onload="init()">
 <h1>Scander</h1>
 
 <form method="get">
