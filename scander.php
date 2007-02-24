@@ -56,7 +56,7 @@ function printDir($dir) {
 		if (preg_match('/^\.+$/', $i)) continue;
 		
 		$path = realpath("$dir/$i");
-		$shade = $z % 2 ? '' : ' class=\'shaded\'';
+		$shade = $z % 2 ? '' : ' class="shaded"';
 		$change = date('j/m/Y g:ia', filectime($path));
 		
 		if (is_dir($path)) {
@@ -103,28 +103,39 @@ function downloadFile($file) {
 }
 
 function uploadFile($outdir) {
+	$uploadBoxes = '';
+	for ($i = 0; $i < 50; $i++) {
+		$uploadBoxes .= "\t<span id=\"uploadbox$i\" onchange=\"newUploadBox(this)\" style=\"display: none\"><input name=\"upFile[]\" type=\"file\" size=\"60\" /><br /></span>\r\n";
+	}
+	
 	echo '
-<h2>Upload File</h2>';
+<h2>Upload Files</h2>';
 	if(!isset($_FILES['upFile'])) {
 		echo '
 <form method="post" enctype="multipart/form-data">
-<div id="fileList"><input name="upFile[]" type="file" />
-<input type="button" value="Add Another" onclick="addFileUpload()" /></div>
-<input type="submit" value="Upload" style="font-weight: bold" />
-<input type="button" value="Cancel" onclick="browseDir(\''.addslashes($outdir).'\');" />
+'.$uploadBoxes.'
+	<input type="submit" value="Upload" style="font-weight: bold" />
+	<input type="button" value="Cancel" onclick="browseDir(\''.addslashes($outdir).'\');" />
 </form>
 ';
-	} else {
-		$file = $_FILES['upFile'];
+	}
+	else {
+		echo "<ul>\r\n";
 		$outdir .= '/';
-		for ($i=0;$i<count($file['name']);$i++) {
-			if(move_uploaded_file($file['tmp_name'][$i],
-			   $outdir . $file['name'][$i])) {
-				echo "<p>Successfully uploaded. <a href=\"javascript:browseDir('".addslashes($outdir)."');\">Return</a></p>";
-			} else {
-				echo '<p>Upload failed. <a href="javascript:history.go(-1)">Retry</a></p>';
+		$file = $_FILES['upFile'];
+		for ($i = 0; $i < count($file['name']); $i++) {
+			if (strlen($file['name'][$i]) == 0) continue;
+			
+			if (move_uploaded_file($file['tmp_name'][$i], $outdir . $file['name'][$i])) {
+				echo "\t<li><b>".html($file['name'][$i])."</b> successfully uploaded.</li>\r\n";
+			}
+			else {
+				echo "\tUploading <b>".html($file['name'][$i])."</b> failed.</li>\r\n";
 			}
 		}
+		echo '</ul>';
+		
+		echo "<p><a href=\"javascript:browseDir('".addslashes($outdir)."');\">Return</a></p>";
 	}
 }
 
@@ -132,24 +143,12 @@ function editFile($filename, $new=false) {
 	global $thisDir;
 	
 	$filename = realpath($filename);
-	/*if (!is_file($filename)) {
-		echo '<strong>Error:</strong> Not a file or doesn\'t exist';
-		return;
-	}*/
 	
 	$name = basename($filename);
 	$file = file_get_contents($filename);
 	$title = $new ? '<input type="text" id="f" size="89" style="font-size: 1.4em" /><br />' : '<h2>'.html($name).'</h2>
 	<input type="hidden" id="f" size="120" value="'.html($filename).'" />';
 	$saveArgs = $new ? "'".addslashes($filename)."/' + document.getElementById('f').value, document.getElementById('v').value" : "document.getElementById('f').value, document.getElementById('v').value";
-	
-	/*echo "
-$title
-
-<textarea id=\"v\" cols=\"90\" rows=\"25\" onchange=\"setSaveStatus('Unsaved', false)\">".html($file)."</textarea><br />
-<input type=\"button\" onclick=\"save('".html(addslashes($filename))."', document.getElementById('v').value);\" value=\"Save\" id=\"saveBtn\" style=\"font-weight: bold\" />
-<input type=\"button\" value=\"Exit\" id=\"exitBtn\" onclick=\"browseDir('".addslashes($thisDir)."');\" /> <span id=\"saveStatus\"></span>
-";*/
 
 	echo "
 $title
@@ -257,6 +256,7 @@ table.data td a:hover {
 }
 </style>
 <script type="text/javascript">
+
 function newXMLHTTP() {
 	try {
 		return new XMLHttpRequest();
@@ -352,7 +352,7 @@ function execEval() {
 				comOut.innerHTML += (comOut.innerHTML.length ? "" : "<hr />") + ajax.responseText + "<br />";
 			}
 			else {
-				comOut.innerHTML += "<span style=\"color: red\">Couldn't execute.</font><br />";
+				comOut.innerHTML += "<span style=\"color: red\">Error executing PHP.</font><br />";
 			}
 			evalBtn.disabled = false;
 		}
@@ -368,18 +368,23 @@ function clearEvalOutput() {
 	document.getElementById("command_output").innerHTML = "";
 }
 
-function addFileUpload() {
-	var newBox = document.createElement("input");
-	newBox.type = "file";
-	newBox.name = "upFile[]";
-	var fileList = document.getElementById("fileList");
-	fileList.appendChild(document.createElement("br"));
-	fileList.appendChild(newBox);
+u = 0;
+changedBoxes = [];
+function newUploadBox(caller) {
+	if (caller) {
+		for (i in changedBoxes) {
+			if (changedBoxes[i] == caller.id) return;
+		}
+	changedBoxes.push(caller.id);
+	}
+	
+	uploadBox = document.getElementById("uploadbox" + u++).style.display = "inline";
 }
+
 </script>
 </head>
 
-<body>
+<body onload="newUploadBox(false)">
 <h1>Scander</h1>
 
 <form method="get">
