@@ -372,8 +372,8 @@ header('Content-Type: text/html; charset=ISO-8859-1');
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
 <title>Scander</title>
-<link rel="stylesheet" href="<?php echo $_SERVER['PHP_SELF']; ?>?action=getcss" type="text/css" />
-<script type="text/javascript" src="<?php echo $_SERVER['PHP_SELF']; ?>?action=getscript"></script>
+<link rel="stylesheet" href="?action=getcss" type="text/css" />
+<script type="text/javascript" src="?action=getscript"></script>
 </head>
 
 <body>
@@ -390,7 +390,7 @@ header('Content-Type: text/html; charset=ISO-8859-1');
 	<a href="javascript:history.go(1)"><font face="Wingdings">ð</font></a>
 	<a href="?action=dir&s=<?php echo $upDir; ?>"><font face="Wingdings">ñ</font></a>
 	<a href="javascript://" onclick="location.reload(true)"><font face="Webdings">q</font></a>
-	<a href="<?php echo $_SERVER['PHP_SELF']; ?>"><font face="Webdings">H</font></a>
+	<a href="?"><font face="Webdings">H</font></a>
 	&nbsp;<span style="border-left: 1px solid #CCC; margin">&nbsp;</span>
 	<a href="?action=edit&p=new&s=<?php echo html($thisDir); ?>"><font face="Wingdings">2</font></a>
 	<a href="?action=eval&s=<?php echo html($thisDir); ?>"><span style="font-size: 0.8em">&lt;?</span></a>
