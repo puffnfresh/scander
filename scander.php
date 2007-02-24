@@ -190,14 +190,10 @@ function evalBox($command) {
 	}
 }
 
-header('Content-Type: text/html; charset=ISO-8859-1');
-?>
-<html>
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
-<title>Scander</title>
-<style type="text/css">
-body, td {
+function printCSS() {
+	ob_end_clean();
+	header('Content-Type: text/css');
+	echo 'body, td {
 	font: 80% sans-serif;
 }
 a {
@@ -249,11 +245,14 @@ table.data td a:hover {
 	color: #555;
 	background-color: #FFF;
 }
-</style>
+';
+	die;
+}
 
-<script type="text/javascript">
-
-function newXMLHTTP() {
+function printScript() {
+	ob_end_clean();
+	header('Content-Type: text/javascript');
+	echo 'function newXMLHTTP() {
 	try {
 		return new XMLHttpRequest();
 	}
@@ -348,7 +347,7 @@ function execEval() {
 				comOut.innerHTML += (comOut.innerHTML.length ? "" : "<hr />") + ajax.responseText + "<br />";
 			}
 			else {
-				comOut.innerHTML += "<span style=\"color: red\">Couldn't execute.</font><br />";
+				comOut.innerHTML += "<span style=\"color: red\">Couldn\'t execute.</font><br />";
 			}
 			evalBtn.disabled = false;
 		}
@@ -363,8 +362,18 @@ function execEval() {
 function clearEvalOutput() {
 	document.getElementById("command_output").innerHTML = "";
 }
+';
+	die;
+}
 
-</script>
+header('Content-Type: text/html; charset=ISO-8859-1');
+?>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<title>Scander</title>
+<link rel="stylesheet" href="<?php echo $_SERVER['PHP_SELF']; ?>?action=getcss" type="text/css" />
+<script type="text/javascript" src="<?php echo $_SERVER['PHP_SELF']; ?>?action=getscript"></script>
 </head>
 
 <body>
@@ -416,6 +425,12 @@ switch ($action) {
 		break;
 	case 'dir':
 		printDir($subject);
+		break;
+	case 'getcss':
+		printCSS();
+		break;
+	case 'getscript':
+		printScript();
 		break;
 	default:
 		printDir($subject);

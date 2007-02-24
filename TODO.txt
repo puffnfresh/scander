@@ -5,3 +5,4 @@
 * Come up with a better method to tell whether or not changes have been made to a text field. onchange event does not get invoked until the text area has been blurred
 * System shell
 * Add checkboxes next to every file/directory so that actions can be ran on multiple items
+* Set a proper cache-control for the actions getcss and getscript.
