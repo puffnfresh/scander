@@ -393,8 +393,8 @@ header('Content-Type: text/html; charset=ISO-8859-1');
 	<a href="?"><font face="Webdings">H</font></a>
 	&nbsp;<span style="border-left: 1px solid #CCC; margin">&nbsp;</span>
 	<a href="?action=new&s=<?php echo html($thisDir); ?>"><font face="Wingdings">2</font></a>
+	<a href="?action=ul&s=<?php echo html($thisDir); ?>"><font face="Webdings">Â</font></a>
 	<a href="?action=eval&s=<?php echo html($thisDir); ?>"><span style="font-size: 0.8em">&lt;?</span></a>
-	<a href="?action=ul&s=<?php echo html($thisDir); ?>"><span style="font-size: 0.8em">^</span></a>
 </div>
 <br />
 
