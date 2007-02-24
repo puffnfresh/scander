@@ -102,8 +102,11 @@ function downloadFile($file) {
 }
 
 function uploadFile($outdir) {
+	echo '
+<h2>Upload File</h2>';
 	if($_FILES['upFile'] === NULL) {
-		echo '<form method="post" enctype="multipart/form-data">
+		echo '
+<form method="post" enctype="multipart/form-data">
 <input id="upFile" name="upFile" type="file" /><br />
 <input type="submit" value="Upload" style="font-weight: bold" />
 <input type="button" value="Cancel" onclick="browseDir(\''.addslashes($outdir).'\');" />
