@@ -105,7 +105,7 @@ function downloadFile($file) {
 function uploadFile($outdir) {
 	$uploadBoxes = '';
 	for ($i = 0; $i < 50; $i++) {
-		$uploadBoxes .= "\t<span id=\"uploadbox$i\" onchange=\"newUploadBox(this)\" style=\"display: none\"><input name=\"upFile[]\" type=\"file\" size=\"60\" /><br /></span>\r\n";
+		$uploadBoxes .= "\t<span id=\"uploadbox$i\" onclick=\"newUploadBox(this)\" onchange=\"newUploadBox(this)\" style=\"display: none\"><input name=\"upFile[]\" type=\"file\" size=\"60\" /><br /></span>\r\n";
 	}
 	
 	echo '
