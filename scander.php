@@ -145,7 +145,7 @@ function editFile($filename, $new=false) {
 	$filename = realpath($filename);
 	
 	$name = basename($filename);
-	$file = file_get_contents($filename);
+	$file = $new ? '' : file_get_contents($filename);;
 	$title = $new ? '<input type="text" id="f" size="89" style="font-size: 1.4em" /><br />' : '<h2>'.html($name).'</h2>
 	<input type="hidden" id="f" size="120" value="'.html($filename).'" />';
 	$saveArgs = $new ? "'".addslashes($filename)."/' + document.getElementById('f').value, document.getElementById('v').value" : "document.getElementById('f').value, document.getElementById('v').value";
