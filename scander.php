@@ -105,21 +105,25 @@ function downloadFile($file) {
 function uploadFile($outdir) {
 	echo '
 <h2>Upload File</h2>';
-	if($_FILES['upFile'] === NULL) {
+	if(!isset($_FILES['upFile'])) {
 		echo '
 <form method="post" enctype="multipart/form-data">
-<input id="upFile" name="upFile" type="file" /><br />
+<div id="fileList"><input name="upFile[]" type="file" />
+<input type="button" value="Add Another" onclick="addFileUpload()" /></div>
 <input type="submit" value="Upload" style="font-weight: bold" />
 <input type="button" value="Cancel" onclick="browseDir(\''.addslashes($outdir).'\');" />
 </form>
 ';
 	} else {
+		$file = $_FILES['upFile'];
 		$outdir .= '/';
-		if(move_uploaded_file($_FILES['upFile']['tmp_name'],
-		   $outdir . $_FILES['upFile']['name'])) {
-			echo "Successfully uploaded. <a href=\"javascript:browseDir('".addslashes($outdir)."');\">Return</a>";
-		} else {
-			echo 'Upload failed. <a href="javascript:history.go(-1)">Retry</a>';
+		for ($i=0;$i<count($file['name']);$i++) {
+			if(move_uploaded_file($file['tmp_name'][$i],
+			   $outdir . $file['name'][$i])) {
+				echo "<p>Successfully uploaded. <a href=\"javascript:browseDir('".addslashes($outdir)."');\">Return</a></p>";
+			} else {
+				echo '<p>Upload failed. <a href="javascript:history.go(-1)">Retry</a></p>';
+			}
 		}
 	}
 }
@@ -362,6 +366,15 @@ function execEval() {
 
 function clearEvalOutput() {
 	document.getElementById("command_output").innerHTML = "";
+}
+
+function addFileUpload() {
+	var newBox = document.createElement("input");
+	newBox.type = "file";
+	newBox.name = "upFile[]";
+	var fileList = document.getElementById("fileList");
+	fileList.appendChild(document.createElement("br"));
+	fileList.appendChild(newBox);
 }
 </script>
 </head>
