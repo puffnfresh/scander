@@ -249,7 +249,7 @@ table.data td a:hover {
 	die;
 }
 
-function printScript() {
+function printJS() {
 	ob_end_clean();
 	header('Content-Type: text/javascript');
 	echo 'function newXMLHTTP() {
@@ -373,7 +373,7 @@ header('Content-Type: text/html; charset=ISO-8859-1');
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
 <title>Scander</title>
 <link rel="stylesheet" href="?action=getcss" type="text/css" />
-<script type="text/javascript" src="?action=getscript"></script>
+<script type="text/javascript" src="?action=getjs"></script>
 </head>
 
 <body>
@@ -430,8 +430,8 @@ switch ($action) {
 	case 'getcss':
 		printCSS();
 		break;
-	case 'getscript':
-		printScript();
+	case 'getjs':
+		printJS();
 		break;
 	default:
 		printDir($subject);
