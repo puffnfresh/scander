@@ -65,7 +65,8 @@ function printDir($dir) {
 	<td><a href=\"?action=dir&s=".html($path)."\">$i</a></td>
 	<td>&nbsp;</td>
 	<td>$change</td>
-	<td id=\"actions\"><font face=\"Wingdings\" size=\"4\"><a href=\"javascript://\" class=\"icon\" onclick=\"del('".addslashes(url($path))."', '".url($i)."', true, document.getElementById('row$z'))\"?>û</a></font></td><td>&nbsp;</td>
+	<td id=\"actions\"><font face=\"Wingdings\" size=\"4\"><a href=\"javascript://\" class=\"icon\" onclick=\"del('".addslashes(url($path))."', '".url($i)."', true, document.getElementById('row$z'))\"?>û</a></font></td>
+	<td>&nbsp;</td>
 </tr>
 ";
 		}
@@ -77,7 +78,8 @@ function printDir($dir) {
 	<td><a href=\"?action=dl&s=".html($path)."\">$i</a></td>
 	<td>$size</td>
 	<td>$change</td>
-	<td><font face=\"Wingdings\" size=\"4\"><a href=\"javascript://\" class=\"icon\" onclick=\"del('".addslashes(url($path))."', '".url($i)."', false, document.getElementById('row$z'))\"?>û</a></font></td><td><font face=\"Webdings\" size=\"4\"><a href=\"?action=edit&s=".url($path)."\" class=\"icon\">¥</a></font></td>
+	<td><font face=\"Wingdings\" size=\"4\"><a href=\"javascript://\" class=\"icon\" onclick=\"del('".addslashes(url($path))."', '".url($i)."', false, document.getElementById('row$z'))\"?>û</a></font></td>
+	<td><font face=\"Webdings\" size=\"4\"><a href=\"?action=edit&s=".url($path)."\" class=\"icon\">¥</a></font></td>
 </tr>
 ";
 		}
@@ -102,8 +104,8 @@ function downloadFile($file) {
 function uploadFile($outdir) {
 	if($_FILES['upFile'] === NULL) {
 		echo '<form method="post" enctype="multipart/form-data">
-<input id="upFile" name="upFile" type="file"><br />
-<input type="submit" value="Upload" style="font-weight: bold">
+<input id="upFile" name="upFile" type="file" /><br />
+<input type="submit" value="Upload" style="font-weight: bold" />
 <input type="button" value="Cancel" onclick="browseDir(\''.addslashes($outdir).'\');" />
 </form>
 ';
@@ -137,14 +139,16 @@ function editFile($filename, $new) {
 $title
 
 <textarea id=\"v\" cols=\"90\" rows=\"25\" onchange=\"setSaveStatus('Unsaved', false)\">".html($file)."</textarea><br />
-<input type=\"button\" onclick=\"save('".html(addslashes($filename))."', document.getElementById('v').value);\" value=\"Save\" id=\"saveBtn\" style=\"font-weight: bold\" /> <input type=\"button\" value=\"Exit\" id=\"exitBtn\" onclick=\"browseDir('".addslashes($thisDir)."');\" /> <span id=\"saveStatus\"></span>
+<input type=\"button\" onclick=\"save('".html(addslashes($filename))."', document.getElementById('v').value);\" value=\"Save\" id=\"saveBtn\" style=\"font-weight: bold\" />
+<input type=\"button\" value=\"Exit\" id=\"exitBtn\" onclick=\"browseDir('".addslashes($thisDir)."');\" /> <span id=\"saveStatus\"></span>
 ";*/
 
 	echo "
 $title
 
 <textarea id=\"v\" cols=\"90\" rows=\"25\" onchange=\"setSaveStatus('Unsaved', false)\">".html($file)."</textarea><br />
-<input type=\"button\" onclick=\"save($saveArgs);\" value=\"Save\" id=\"saveBtn\" style=\"font-weight: bold\" /> <input type=\"button\" value=\"Exit\" id=\"exitBtn\" onclick=\"browseDir('".addslashes($thisDir)."');\" /> <span id=\"saveStatus\"></span>
+<input type=\"button\" onclick=\"save($saveArgs);\" value=\"Save\" id=\"saveBtn\" style=\"font-weight: bold\" />
+<input type=\"button\" value=\"Exit\" id=\"exitBtn\" onclick=\"browseDir('".addslashes($thisDir)."');\" /> <span id=\"saveStatus\"></span>
 ";
 }
 
@@ -170,7 +174,8 @@ function evalBox($command) {
 <h2>Run PHP</h2>
 <form action="javascript://" onsubmit="execEval()">
 	<textarea id="v" cols="80" rows="20"></textarea>
-	<br /><input id="evalbtn" type="submit" value="Run" style="font-weight: bold"> <input type="button" value="Clear Output" onclick="clearEvalOutput()" />
+	<br /><input id="evalbtn" type="submit" value="Run" style="font-weight: bold" />
+	<input type="button" value="Clear Output" onclick="clearEvalOutput()" />
 </form>
 <div id="command_output"></div>
 ';
