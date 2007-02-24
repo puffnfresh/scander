@@ -181,7 +181,7 @@ function evalBox($command) {
 ';
 	}
 	else {
-		ob_clean();
+		ob_end_clean();
 		eval($command);
 		die;
 	}
