@@ -308,7 +308,7 @@ function del(path, name, isDir, row) {
 				}
 			}
 		}
-		ajax.open("GET", "?action=del&s=" + escape(path), true);
+		ajax.open("GET", "?action=del&s=" + encodeURIComponent(path), true);
 		ajax.send(null);
 	}
 	else {
@@ -318,7 +318,7 @@ function del(path, name, isDir, row) {
 
 function save(file, value) {
 	var ajax = newXMLHTTP();
-	var params = "v=" + escape(value);
+	var params = "v=" + encodeURIComponent(value);
 	var saveStatus = document.getElementById("saveStatus");
 	var filenameBox = document.getElementById("f");
 	
@@ -335,7 +335,7 @@ function save(file, value) {
 			saveBtn.enabled = true;
 		}
 	}
-	ajax.open("POST", "?action=save&s=" + escape(file), true);
+	ajax.open("POST", "?action=save&s=" + encodeURIComponent(file), true);
 	ajax.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
 	ajax.setRequestHeader("Content-length", params.length);
 	ajax.setRequestHeader("Connection", "close");
@@ -357,7 +357,7 @@ function browseDir(dir) {
 function execEval() {
 	var ajax = newXMLHTTP();
 	var evalBox = document.getElementById("v");
-	var params = "v=" + escape(evalBox.value);
+	var params = "v=" + encodeURIComponent(evalBox.value);
 	var evalBtn = document.getElementById("evalbtn");
 	var comOut = document.getElementById("command_output");
 
