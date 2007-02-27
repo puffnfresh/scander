@@ -1,7 +1,7 @@
 <?php
 
 // change php.ini settings
-ini_set('memory_limit', '1024M'); // 1GB
+ini_set('memory_limit', '1024M');
 ini_set('max_execution_time', '0');
 ini_set('register_globals', 'Off');
 
@@ -24,12 +24,13 @@ function url($str) {
 // set up some variables
 $subject = isset($_GET['s']) ? realpath(gpc($_GET['s'])) : realpath(dirname($_SERVER['SCRIPT_FILENAME']));
 if (!$subject) $subject = gpc($_GET['s']);
-$action = isset($_GET['action']) ? gpc($_GET['action']) : 'dir';
-$param = isset($_GET['p']) ? gpc($_GET['p']) : false;
+$action = isset($_GET['action']) ? strtolower(gpc($_GET['action'])) : 'dir';
+//$param = isset($_GET['p']) ? gpc($_GET['p']) : false; // not used anymore
 //$thisDir = realpath($subject . (is_file($subject) ? '/..' : ''));
 $thisDir = realpath(is_file($subject) ? dirname($subject) : $subject);
 $upDir = realpath("$subject/..");
-$value = isset($_POST['v']) ? gpc($_POST['v']) : false;
+//$value = isset($_POST['v']) ? gpc($_POST['v']) : false;
+$value = isset($_REQUEST['v']) ? gpc($_REQUEST['v']) : false;
 
 
 function printDir($dir) {
@@ -50,7 +51,7 @@ function printDir($dir) {
 	
 	echo '
 <table class="data">
-<th>&nbsp;</th><th width=\"350\">Name</th><th width=\"90\">Bytes</th><th width=\"150\">Changed</th><th>&nbsp;</th>';
+<th>&nbsp;</th><th width="350">Name</th><th width="90">Bytes</th><th width="150">Changed</th><th>&nbsp;</th><th>&nbsp;</th><th>&nbsp;</th>';
 	
 	foreach ($entries as $z => $i) {
 		if (preg_match('/^\.+$/', $i)) continue;
@@ -60,29 +61,51 @@ function printDir($dir) {
 		$change = date('j/m/Y g:ia', filectime($path));
 		
 		if (is_dir($path)) {
+			// directory
+			
 			echo "
 <tr$shade id=\"row$z\">
-	<td><a class=\"icon\" href=\"?action=dir&s=".html($path)."\"><font size=\"4\" face=\"Wingdings\">0</font></a></td>
-	<td><a href=\"?action=dir&s=".html($path)."\">$i</a></td>
+	<td><a class=\"icon\" href=\"javascript://\" onclick=\"browseDir(pathFromID($z))\"><font size=\"4\" face=\"Wingdings\">0</font></a></td>
+	<td>
+		<input type=\"hidden\" id=\"path$z\" value=\"".html($path)."\" />
+		<input type=\"hidden\" id=\"filename$z\" value=\"".html($i)."\" />
+		<a href=\"javascript://\" onclick=\"browseDir(pathFromID($z))\" id=\"link$z\">".html($i)."</a>
+		<form action=\"javascript://\" onsubmit=\"rename($z)\" class=\"compact\">
+			<input type=\"text\" id=\"label$z\" class=\"filelabel\" value=\"".html($i)."\" style=\"display: none\" />
+		</form>
+	</td>
 	<td>&nbsp;</td>
 	<td>$change</td>
-	<td id=\"actions\"><font face=\"Wingdings\" size=\"4\"><a href=\"javascript://\" class=\"icon\" onclick=\"del('".addslashes(url($path))."', '".url($i)."', true, document.getElementById('row$z'))\"?>û</a></font></td>
+	<td><font face=\"Wingdings\" size=\"4\"><a href=\"javascript://\" class=\"icon\" onclick=\"del(pathFromID($z), filenameFromID($z), true, document.getElementById('row$z'))\"?>û</a></font></td>
+	<td><font face=\"Wingdings\" size=\"4\"><a href=\"javascript://\" class=\"icon\" onclick=\"toggleLabelEdit($z)\">`</a></font></td>
 	<td>&nbsp;</td>
 </tr>
 ";
 		}
 		else {
+			// file
+			
 			$size = number_format(filesize($path), 0, '.', ',');
+			
 			echo "
 <tr$shade id=\"row$z\">
-	<td><a class=\"icon\" href=\"?action=dl&s=".html($path)."\"><font size=\"4\" face=\"Wingdings\">2</font></a></td>
-	<td><a href=\"?action=dl&s=".html($path)."\">$i</a></td>
+	<td><a class=\"icon\" href=\"javascript://\" onclick=\"goto('?action=dl&s=' + pathFromID($z))\"><font size=\"4\" face=\"Wingdings\">2</font></a></td>
+	<td>
+		<input type=\"hidden\" id=\"path$z\" value=\"".html($path)."\" />
+		<input type=\"hidden\" id=\"filename$z\" value=\"".html($i)."\" />
+		<a href=\"javascript://\" onclick=\"goto('?action=dl&s=' + pathFromID($z))\" id=\"link$z\">".html($i)."</a>
+		<form action=\"javascript://\" onsubmit=\"rename($z)\" class=\"compact\">
+			<input type=\"text\" id=\"label$z\" class=\"filelabel\" value=\"".html($i)."\" style=\"display: none\" />
+		</form>
+	</td>
 	<td>$size</td>
 	<td>$change</td>
-	<td><font face=\"Wingdings\" size=\"4\"><a href=\"javascript://\" class=\"icon\" onclick=\"del('".addslashes(url($path))."', '".url($i)."', false, document.getElementById('row$z'))\"?>û</a></font></td>
-	<td><font face=\"Webdings\" size=\"4\"><a href=\"?action=edit&s=".url($path)."\" class=\"icon\">¥</a></font></td>
+	<td><font face=\"Wingdings\" size=\"4\"><a href=\"javascript://\" class=\"icon\" onclick=\"del(pathFromID($z), filenameFromID($z), true, document.getElementById('row$z'))\"?>û</a></font></td>
+	<td><font face=\"Wingdings\" size=\"4\"><a href=\"javascript://\" class=\"icon\" onclick=\"toggleLabelEdit($z)\">`</a></font></td>
+	<td><font face=\"Webdings\" size=\"4\"><a href=\"javascript://\" onclick=\"goto('?action=edit&s=' + pathFromID($z))\" class=\"icon\">¥</a></font></td>
 </tr>
 ";
+
 		}
 	}
 	
@@ -94,7 +117,7 @@ function downloadFile($file) {
 	if (function_exists('mime_content_type')) {
 		$contype = mime_content_type($file);
 	} else {
-		$contype = 'foo';
+		$contype = 'Unknown';
 		header("Content-Disposition: attachment; filename=\"$filename\"");
 	}
 	header("Content-type: $contype");
@@ -164,12 +187,19 @@ function saveFile($filename, $contents) {
 	die;
 }
 
+function renameSubject($subject, $newName) {
+	$success = rename($subject, dirname($subject).'/'.$newName);
+	$newPath = realpath(dirname($subject).'/'.$newName);
+	echo $success ? $newPath : '0';
+	die;
+}
+
 function deleteSubject($subject) {
 	if (is_file($subject)) {
-		echo @unlink($subject);
+		echo @unlink($subject) ? '1' : '0';
 	}
 	else if (is_dir($subject)) {
-		echo @rmdir($subject);
+		echo @rmdir($subject) ? '1' : '0';
 	}
 	else echo false;
 	die;
@@ -195,12 +225,12 @@ function evalBox($command) {
 }
 
 header('Content-Type: text/html; charset=ISO-8859-1');
+
 ?>
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
 <title>Scander</title>
-<link rel="stylesheet" href="?action=getcss" type="text/css" />
 <style type="text/css">
 body, td {
 	font: 80% sans-serif;
@@ -231,6 +261,20 @@ table.data td a {
 }
 table.data td a:hover {
 	color: #77F;
+}
+
+form.compact {
+	display: inline;
+	margin: 0;
+	padding: 0;
+}
+
+input.filelabel {
+	font: 100% sans-serif;
+	border: 1px solid grey;
+	background: white;
+	margin: 0;
+	width: 100%
 }
 
 .icon {
@@ -354,6 +398,17 @@ function browseDir(dir) {
 	location.href = "?action=dir&s=" + dir;
 }
 
+function goto(url) {
+	location.href = url;
+}
+
+function pathFromID(id) {
+	return document.getElementById("path" + id).value;
+}
+function filenameFromID(id) {
+	return document.getElementById("filename" + id).value;
+}
+
 function execEval() {
 	var ajax = newXMLHTTP();
 	var evalBox = document.getElementById("v");
@@ -387,6 +442,7 @@ function clearEvalOutput() {
 
 u = 0;
 changedBoxes = [];
+
 function newUploadBox(caller) {
 	if (caller) {
 		for (i in changedBoxes) {
@@ -396,6 +452,63 @@ function newUploadBox(caller) {
 	}
 	
 	uploadBox = document.getElementById("uploadbox" + u++).style.display = "inline";
+}
+
+function toggleLabelEdit(id) {
+	var label = document.getElementById("label" + id);
+	var link = document.getElementById("link" + id);
+	var subjectPath = pathFromID(id);
+	var editMode = label.style.display != "none";
+	var oldValue = link.innerHTML;
+	
+	label.style.display = !editMode ? "inline" : "none";
+	link.style.display = editMode ? "inline" : "none";
+	
+	label.focus(); // fix for Firefox
+	label.select();
+	
+	if (editMode) {
+		label.onblur = null;
+		label.onkeypress = null;
+	}
+	else {
+		label.onblur = function() {
+			rename(id, subjectPath);
+		};
+		label.onkeypress = function(e) {
+			var keyPressed = window.event ? event.keyCode : e.keyCode;
+			if (keyPressed == 27) {
+				label.value = oldValue;
+				toggleLabelEdit(id, subjectPath);
+			}
+		};
+	}
+}
+
+function rename(id) {
+	var label = document.getElementById("label" + id);
+	var link = document.getElementById("link" + id);
+	var subjectPath = pathFromID(id);
+	var path = document.getElementById("path" + id);
+	var oldName = link.innerHTML;
+	var newName = label.value;
+	
+	var ajax = newXMLHTTP();
+	ajax.onreadystatechange = function() {
+		if (ajax.readyState == 4) {
+			if (ajax.responseText != "0") {
+				path.value = ajax.responseText;
+			}
+			else {
+				alert("Failed to rename \"" + oldName + "\". The file is either in use or another file shares the same name.");
+			}
+		}
+	}
+	ajax.open("GET", "?action=rn&s=" + encodeURIComponent(subjectPath) + "&v=" + encodeURIComponent(newName), true);
+	ajax.send(null);
+	
+	link.innerHTML = newName;
+	toggleLabelEdit(id);
 }
 
 </script>
@@ -439,6 +552,10 @@ switch ($action) {
 	case 'new':
 		editFile($subject, $action == 'new');
 		break;
+	case 'rn':
+		ob_clean();
+		renameSubject($subject, $value);
+		break;
 	case 'save':
 		ob_clean();
 		saveFile($subject, $value);
@@ -452,9 +569,6 @@ switch ($action) {
 	case 'dir':
 		printDir($subject);
 		break;
-	default:
-		printDir($subject);
-		break;	
 }
 
 ?>
