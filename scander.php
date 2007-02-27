@@ -188,8 +188,7 @@ function saveFile($filename, $contents) {
 }
 
 function renameSubject($subject, $newName) {
-	error_reporting(0); // Hacky - makes sure only response is either the new path or 0.
-	$success = rename($subject, dirname($subject).'/'.$newName);
+	$success = @rename($subject, dirname($subject).'/'.$newName);
 	$newPath = realpath(dirname($subject).'/'.$newName);
 	echo $success ? $newPath : '0';
 	die;
