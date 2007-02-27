@@ -188,6 +188,7 @@ function saveFile($filename, $contents) {
 }
 
 function renameSubject($subject, $newName) {
+	error_reporting(0); // Hacky - makes sure only response is either the new path or 0.
 	$success = rename($subject, dirname($subject).'/'.$newName);
 	$newPath = realpath(dirname($subject).'/'.$newName);
 	echo $success ? $newPath : '0';
@@ -224,14 +225,13 @@ function evalBox($command) {
 	}
 }
 
-header('Cache-Control: no-cache');
 header('Content-Type: text/html; charset=ISO-8859-1');
 
 ?>
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
-<title>Scander - <?php echo html($subject); ?></title>
+<title>Scander</title>
 <style type="text/css">
 body, td {
 	font: 80% sans-serif;
@@ -491,7 +491,6 @@ function rename(id) {
 	var link = document.getElementById("link" + id);
 	var subjectPath = pathFromID(id);
 	var path = document.getElementById("path" + id);
-	var filename = document.getElementById("filename" + id);
 	var oldName = link.innerHTML;
 	var newName = label.value;
 	
@@ -500,7 +499,6 @@ function rename(id) {
 		if (ajax.readyState == 4) {
 			if (ajax.responseText != "0") {
 				path.value = ajax.responseText;
-				filename.value = newName;
 			}
 			else {
 				alert("Failed to rename \"" + oldName + "\". The file is either in use or another file shares the same name.");
