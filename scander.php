@@ -500,7 +500,7 @@ function rename(id) {
 		if (ajax.readyState == 4) {
 			if (ajax.responseText != "0") {
 				path.value = ajax.responseText;
-				filename.value = newName;
+				filename.value = link.innerHTML = newName;
 			}
 			else {
 				alert("Failed to rename \"" + oldName + "\". The file is either in use or another file shares the same name.");
@@ -509,8 +509,7 @@ function rename(id) {
 	}
 	ajax.open("GET", "?action=rn&s=" + encodeURIComponent(subjectPath) + "&v=" + encodeURIComponent(newName), true);
 	ajax.send(null);
-	
-	link.innerHTML = newName;
+
 	toggleLabelEdit(id);
 }
 
