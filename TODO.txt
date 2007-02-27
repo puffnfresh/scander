@@ -1,3 +1,7 @@
+- Done
+* Not done
+------------
+
 - Fill out this todo list.
 * Make newly edited file be subtly highlighted in listing when returning back from edit mode("exiting")
 - Ability to rename - preferably in place, turning the file/directory name text into a text field and updating it using AJAX
@@ -5,3 +9,4 @@
 * System shell
 * Add checkboxes next to every file/directory so that actions can be ran on multiple items
 * Fix edit mode - stop it from messing up weird (UTF-16, I think) characters
+* Add ability to create new directories
