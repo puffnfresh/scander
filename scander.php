@@ -31,9 +31,12 @@ $thisDir = realpath(is_file($subject) ? dirname($subject) : $subject);
 $upDir = realpath("$subject/..");
 //$value = isset($_POST['v']) ? gpc($_POST['v']) : false;
 $value = isset($_REQUEST['v']) ? gpc($_REQUEST['v']) : false;
+$highlight = isset($_GET['h']) ? gpc($_GET['h']) : false;
 
 
 function printDir($dir) {
+	global $highlight;
+	
 	if (is_file($dir)) { // a file was supplied as a directory
 		editFile($dir);
 		return;
@@ -57,7 +60,9 @@ function printDir($dir) {
 		if (preg_match('/^\.+$/', $i)) continue;
 		
 		$path = realpath("$dir/$i");
-		$shade = $z % 2 ? '' : ' class="shaded"';
+		//$shade = $z % 2 ? '' : ' class="shaded"';
+		//$shade = '';
+		$shade = strtolower($i) == strtolower($highlight) ? ' class="highlighted"' : '';
 		$change = date('j/m/Y g:ia', filectime($path));
 		
 		if (is_dir($path)) {
@@ -172,13 +177,15 @@ function editFile($filename, $new=false) {
 	$title = $new ? '<input type="text" id="f" size="89" style="font-size: 1.4em" /><br />' : '<h2>'.html($name).'</h2>
 	<input type="hidden" id="f" size="120" value="'.html($filename).'" />';
 	$saveArgs = $new ? "'".addslashes($filename)."/' + document.getElementById('f').value, document.getElementById('v').value" : "document.getElementById('f').value, document.getElementById('v').value";
+	//$browseArgs = "'.addslashes($thisDir)."', '".addslashes($name).'";
+	$browseArgs = "'".addslashes($thisDir)."', ".($new ? "document.getElementById('f').value" : ("'".addslashes($name))."'");
 
 	echo "
 $title
 
 <textarea id=\"v\" cols=\"90\" rows=\"25\" onchange=\"setSaveStatus('Unsaved', false)\">".html($file)."</textarea><br />
 <input type=\"button\" onclick=\"save($saveArgs);\" value=\"Save\" id=\"saveBtn\" style=\"font-weight: bold\" />
-<input type=\"button\" value=\"Exit\" id=\"exitBtn\" onclick=\"browseDir('".addslashes($thisDir)."');\" /> <span id=\"saveStatus\"></span>
+<input type=\"button\" value=\"Exit\" id=\"exitBtn\" onclick=\"browseDir($browseArgs);\" /> <span id=\"saveStatus\"></span>
 ";
 }
 
@@ -250,15 +257,23 @@ hr {
 table.data tr.shaded {
 	background-color: #EEE;
 }
+table.data tr.highlighted {
+	background-color: #CFD;
+}
+table.data tr:hover {
+	background-color: #EEE;
+}
 table.data th {
 	text-align: left;
+	background-color: white;
 }
 table.data td {
-	padding: 0 0.8em;
-	margin-right: 2em;
+	padding: 0 0.4em;
 }
 table.data td a {
 	display: block;
+	margin: 0;
+	padding: 0;
 }
 table.data td a:hover {
 	color: #77F;
@@ -338,17 +353,17 @@ function newXMLHTTP() {
 }
 
 function del(path, name, isDir, row) {
-	var question = isDir ? "Are you sure you would like to delete the folder \"" + name + "\" and all of its contents?" : "Are you sure you would like to delete the file \"" + name + "\"?";
+		var question = isDir ? "Are you sure you would like to delete the folder \"" + name + "\"?\n\nNOTE: The folder must be empty" : "Are you sure you would like to delete the file \"" + name + "\"?";
 	if (confirm(question)) {
 		var ajax = newXMLHTTP();
 		ajax.onreadystatechange = function() {
 			if (ajax.readyState == 4) {
 				if (ajax.responseText == "1") {
-					row.style.backgroundColor = "red";
+					row.style.display = "none";
 				}
 				else {
-					alert("Error deleting \"" + name + "\"! The file/folder may no longer exist or is still in use.");
-					row.style.backgroundColor = "orange";
+					alert("Error deleting \"" + name + "\"! The file/folder may no longer exist, is still in use, or is not empty (if a folder).");
+					row.style.backgroundColor = "red";
 				}
 			}
 		}
@@ -394,8 +409,13 @@ function setSaveStatus(status, disable) {
 	saveStatus.innerHTML = status;
 }
 
-function browseDir(dir) {
-	location.href = "?action=dir&s=" + dir;
+function browseDir(dir, highlight) {
+	if (!highlight) {
+		location.href = "?action=dir&s=" + dir;
+	}
+	else {
+		location.href = "?action=dir&s=" + dir + "&h=" + highlight;
+	}
 }
 
 function goto(url) {
