@@ -100,7 +100,7 @@ function printDir($dir) {
 	</td>
 	<td>$size</td>
 	<td>$change</td>
-	<td><font face=\"Wingdings\" size=\"4\"><a href=\"javascript://\" class=\"icon\" onclick=\"del(pathFromID($z), filenameFromID($z), true, document.getElementById('row$z'))\"?>û</a></font></td>
+	<td><font face=\"Wingdings\" size=\"4\"><a href=\"javascript://\" class=\"icon\" onclick=\"del(pathFromID($z), filenameFromID($z), false, document.getElementById('row$z'))\"?>û</a></font></td>
 	<td><font face=\"Wingdings\" size=\"4\"><a href=\"javascript://\" class=\"icon\" onclick=\"toggleLabelEdit($z)\">`</a></font></td>
 	<td><font face=\"Webdings\" size=\"4\"><a href=\"javascript://\" onclick=\"goto('?action=edit&s=' + pathFromID($z))\" class=\"icon\">¥</a></font></td>
 </tr>
@@ -316,7 +316,6 @@ switch ($action) {
 }
 
 ?>
-
 }
 
 function newXMLHTTP() {
@@ -504,6 +503,7 @@ function rename(id) {
 			}
 			else {
 				alert("Failed to rename \"" + oldName + "\". The file is either in use or another file shares the same name.");
+				label.value = oldName;
 			}
 		}
 	}
