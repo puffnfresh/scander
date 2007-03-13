@@ -5,13 +5,11 @@ ini_set('memory_limit', '1024M');
 ini_set('max_execution_time', '0');
 ini_set('register_globals', 'Off');
 
-DEFINE('MQ', ini_get('magic_quotes_gpc'));
-
 ob_start();
 
 // generic functions
 function gpc($str) {
-	if (MQ) return stripslashes($str);
+	if (get_magic_quotes_gpc()) return stripslashes($str);
 	return $str;
 }
 function html($str) {
@@ -25,11 +23,8 @@ function url($str) {
 $subject = isset($_GET['s']) ? realpath(gpc($_GET['s'])) : realpath(dirname($_SERVER['SCRIPT_FILENAME']));
 if (!$subject) $subject = gpc($_GET['s']);
 $action = isset($_GET['action']) ? strtolower(gpc($_GET['action'])) : 'dir';
-//$param = isset($_GET['p']) ? gpc($_GET['p']) : false; // not used anymore
-//$thisDir = realpath($subject . (is_file($subject) ? '/..' : ''));
 $thisDir = realpath(is_file($subject) ? dirname($subject) : $subject);
 $upDir = realpath("$subject/..");
-//$value = isset($_POST['v']) ? gpc($_POST['v']) : false;
 $value = isset($_REQUEST['v']) ? gpc($_REQUEST['v']) : false;
 $highlight = isset($_GET['h']) ? gpc($_GET['h']) : false;
 
@@ -69,12 +64,12 @@ function printDir($dir) {
 			// directory
 			
 			echo "
-<tr$shade id=\"row$z\">
-	<td><a class=\"icon\" href=\"javascript://\" onclick=\"browseDir(pathFromID($z))\"><font size=\"4\" face=\"Wingdings\">0</font></a></td>
+<tr$shade id=\"row$z\" onmouseover=\"changeHighlightState(this, true)\" onmouseout=\"changeHighlightState(this, false)\">
+	<td><a class=\"icon\" href=\"#\" onclick=\"browseDir(pathFromID($z))\"><font size=\"4\" face=\"Wingdings\">0</font></a></td>
 	<td>
 		<input type=\"hidden\" id=\"path$z\" value=\"".html($path)."\" />
 		<input type=\"hidden\" id=\"filename$z\" value=\"".html($i)."\" />
-		<a href=\"javascript://\" onclick=\"browseDir(pathFromID($z))\" id=\"link$z\">".html($i)."</a>
+		<a href=\"#\" onclick=\"browseDir(pathFromID($z))\" id=\"link$z\">".html($i)."</a>
 		<form action=\"javascript://\" onsubmit=\"rename($z)\" class=\"compact\">
 			<input type=\"text\" id=\"label$z\" class=\"filelabel\" value=\"".html($i)."\" style=\"display: none\" />
 		</form>
@@ -93,12 +88,12 @@ function printDir($dir) {
 			$size = number_format(filesize($path), 0, '.', ',');
 			
 			echo "
-<tr$shade id=\"row$z\">
-	<td><a class=\"icon\" href=\"javascript://\" onclick=\"goto('?action=dl&s=' + pathFromID($z))\"><font size=\"4\" face=\"Wingdings\">2</font></a></td>
+<tr$shade id=\"row$z\" onmouseover=\"changeHighlightState(this, true)\" onmouseout=\"changeHighlightState(this, false)\">
+	<td><a class=\"icon\" href=\"#\" onclick=\"goto('?action=dl&s=' + pathFromID($z))\"><font size=\"4\" face=\"Wingdings\">2</font></a></td>
 	<td>
 		<input type=\"hidden\" id=\"path$z\" value=\"".html($path)."\" />
 		<input type=\"hidden\" id=\"filename$z\" value=\"".html($i)."\" />
-		<a href=\"javascript://\" onclick=\"goto('?action=dl&s=' + pathFromID($z))\" id=\"link$z\">".html($i)."</a>
+		<a href=\"#\" onclick=\"goto('?action=dl&s=' + pathFromID($z))\" id=\"link$z\">".html($i)."</a>
 		<form action=\"javascript://\" onsubmit=\"rename($z)\" class=\"compact\">
 			<input type=\"text\" id=\"label$z\" class=\"filelabel\" value=\"".html($i)."\" style=\"display: none\" />
 		</form>
@@ -107,7 +102,7 @@ function printDir($dir) {
 	<td>$change</td>
 	<td><font face=\"Wingdings\" size=\"4\"><a href=\"javascript://\" class=\"icon\" onclick=\"del(pathFromID($z), filenameFromID($z), false, document.getElementById('row$z'))\"?>û</a></font></td>
 	<td><font face=\"Wingdings\" size=\"4\"><a href=\"javascript://\" class=\"icon\" onclick=\"toggleLabelEdit($z)\">`</a></font></td>
-	<td><font face=\"Webdings\" size=\"4\"><a href=\"javascript://\" onclick=\"goto('?action=edit&s=' + pathFromID($z))\" class=\"icon\">¥</a></font></td>
+	<td><font face=\"Webdings\" size=\"4\"><a href=\"#\" onclick=\"goto('?action=edit&s=' + pathFromID($z))\" class=\"icon\">¥</a></font></td>
 </tr>
 ";
 
@@ -260,9 +255,6 @@ table.data tr.shaded {
 table.data tr.highlighted {
 	background-color: #CFD;
 }
-table.data tr:hover {
-	background-color: #EEE;
-}
 table.data th {
 	text-align: left;
 	background-color: white;
@@ -411,10 +403,10 @@ function setSaveStatus(status, disable) {
 
 function browseDir(dir, highlight) {
 	if (!highlight) {
-		location.href = "?action=dir&s=" + dir;
+		goto("?action=dir&s=" + dir);
 	}
 	else {
-		location.href = "?action=dir&s=" + dir + "&h=" + highlight;
+		goto("?action=dir&s=" + dir + "&h=" + highlight);
 	}
 }
 
@@ -484,14 +476,14 @@ function toggleLabelEdit(id) {
 	label.style.display = !editMode ? "inline" : "none";
 	link.style.display = editMode ? "inline" : "none";
 	
-	label.focus(); // fix for Firefox
-	label.select();
-	
 	if (editMode) {
 		label.onblur = null;
 		label.onkeypress = null;
 	}
 	else {
+		label.focus();
+		label.select();
+		
 		label.onblur = function() {
 			rename(id, subjectPath);
 		};
@@ -531,6 +523,11 @@ function rename(id) {
 	ajax.send(null);
 
 	toggleLabelEdit(id);
+}
+
+// row highlighting
+function changeHighlightState(row, state) {
+	row.style.backgroundColor = state ? "#EEE" : "#FFF";
 }
 
 </script>
