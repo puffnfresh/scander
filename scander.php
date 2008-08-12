@@ -65,7 +65,7 @@ function printDir($dir) {
 			
 			echo "
 <tr$shade id=\"row$z\" onmouseover=\"changeHighlightState(this, true)\" onmouseout=\"changeHighlightState(this, false)\">
-	<td><a class=\"icon\" href=\"#\" onclick=\"browseDir(pathFromID($z))\"><font size=\"4\" face=\"Wingdings\">0</font></a></td>
+	<td><a class=\"icon\" href=\"#\" onclick=\"browseDir(pathFromID($z))\"><font size=\"4\">Dir</font></a></td>
 	<td>
 		<input type=\"hidden\" id=\"path$z\" value=\"".html($path)."\" />
 		<input type=\"hidden\" id=\"filename$z\" value=\"".html($i)."\" />
@@ -76,8 +76,8 @@ function printDir($dir) {
 	</td>
 	<td>&nbsp;</td>
 	<td>$change</td>
-	<td><font face=\"Wingdings\" size=\"4\"><a href=\"javascript://\" class=\"icon\" onclick=\"del(pathFromID($z), filenameFromID($z), true, document.getElementById('row$z'))\"?>û</a></font></td>
-	<td><font face=\"Wingdings\" size=\"4\"><a href=\"javascript://\" class=\"icon\" onclick=\"toggleLabelEdit($z)\">`</a></font></td>
+	<td><font size=\"4\"><a href=\"javascript://\" class=\"icon\" onclick=\"del(pathFromID($z), filenameFromID($z), true, document.getElementById('row$z'))\"?>Delete</a></font></td>
+	<td><font size=\"4\"><a href=\"javascript://\" class=\"icon\" onclick=\"toggleLabelEdit($z)\">Rename</a></font></td>
 	<td>&nbsp;</td>
 </tr>
 ";
@@ -89,7 +89,7 @@ function printDir($dir) {
 			
 			echo "
 <tr$shade id=\"row$z\" onmouseover=\"changeHighlightState(this, true)\" onmouseout=\"changeHighlightState(this, false)\">
-	<td><a class=\"icon\" href=\"#\" onclick=\"goto('?action=dl&s=' + pathFromID($z))\"><font size=\"4\" face=\"Wingdings\">2</font></a></td>
+	<td><a class=\"icon\" href=\"#\" onclick=\"goto('?action=dl&s=' + pathFromID($z))\"><font size=\"4\">File</font></a></td>
 	<td>
 		<input type=\"hidden\" id=\"path$z\" value=\"".html($path)."\" />
 		<input type=\"hidden\" id=\"filename$z\" value=\"".html($i)."\" />
@@ -100,9 +100,9 @@ function printDir($dir) {
 	</td>
 	<td>$size</td>
 	<td>$change</td>
-	<td><font face=\"Wingdings\" size=\"4\"><a href=\"javascript://\" class=\"icon\" onclick=\"del(pathFromID($z), filenameFromID($z), false, document.getElementById('row$z'))\"?>û</a></font></td>
-	<td><font face=\"Wingdings\" size=\"4\"><a href=\"javascript://\" class=\"icon\" onclick=\"toggleLabelEdit($z)\">`</a></font></td>
-	<td><font face=\"Webdings\" size=\"4\"><a href=\"#\" onclick=\"goto('?action=edit&s=' + pathFromID($z))\" class=\"icon\">¥</a></font></td>
+	<td><font size=\"4\"><a href=\"javascript://\" class=\"icon\" onclick=\"del(pathFromID($z), filenameFromID($z), false, document.getElementById('row$z'))\"?>Delete</a></font></td>
+	<td><font size=\"4\"><a href=\"javascript://\" class=\"icon\" onclick=\"toggleLabelEdit($z)\">Rename</a></font></td>
+	<td><font size=\"4\"><a href=\"#\" onclick=\"goto('?action=edit&s=' + pathFromID($z))\" class=\"icon\">Edit</a></font></td>
 </tr>
 ";
 
@@ -543,15 +543,15 @@ function changeHighlightState(row, state) {
 </form>
 
 <div id="nav">
-	<a href="javascript:history.go(-1)"><font face="Wingdings">ï</font></a>
-	<a href="javascript:history.go(1)"><font face="Wingdings">ð</font></a>
-	<a href="?action=dir&s=<?php echo $upDir; ?>"><font face="Wingdings">ñ</font></a>
-	<a href="javascript://" onclick="location.reload(true)"><font face="Webdings">q</font></a>
-	<a href="?"><font face="Webdings">H</font></a>
+	<a href="javascript:history.go(-1)">Back</a>
+	<a href="javascript:history.go(1)">Forward</a>
+	<a href="?action=dir&s=<?php echo $upDir; ?>">Up</a>
+	<a href="javascript://" onclick="location.reload(true)">Refresh</a>
+	<a href="?">Home</a>
 	&nbsp;<span style="border-left: 1px solid #CCC; margin">&nbsp;</span>
-	<a href="?action=new&s=<?php echo html($thisDir); ?>"><font face="Wingdings">2</font></a>
-	<a href="?action=ul&s=<?php echo html($thisDir); ?>"><font face="Webdings">Â</font></a>
-	<a href="?action=eval&s=<?php echo html($thisDir); ?>"><span style="font-size: 0.8em">&lt;?</span></a>
+	<a href="?action=new&s=<?php echo html($thisDir); ?>">New</a>
+	<a href="?action=ul&s=<?php echo html($thisDir); ?>">Upload</a>
+	<a href="?action=eval&s=<?php echo html($thisDir); ?>">Eval</a>
 </div>
 <br />
 
