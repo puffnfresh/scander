@@ -58,6 +58,15 @@ class Scander {
         if($_POST['code']) {
             $this->code = $_POST['code'];
         }
+
+	// Figure out what URL we accessed scander from (without the GET params).
+	$request_uri = $_SERVER['REQUEST_URI'];
+	$query = $_SERVER['QUERY_STRING'];
+        $query_pos = strrpos($request_uri, $query);
+	if($query_pos + strlen($query) == strlen($request_uri)) {
+            $url = substr($_SERVER['REQUEST_URI'], 0, $query_pos);
+            $this->url = rtrim($url, '?&');
+        }
     }
 
     // Check if this PHP can run Scander correctly.
@@ -176,8 +185,8 @@ function initJS() {
     </div>
     <div id="navigation">
         <ul>
-            <li>Home</li>
-            <li>Eval</li>
+            <li><a href="">Home</a></li>
+            <li><a href="">Eval</a></li>
         </ul>
     </div>
     <div id="content">
