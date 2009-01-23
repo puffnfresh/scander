@@ -19,8 +19,7 @@ class Scander {
 
         $this->setup();
 
-        // FIXME: Doesn't currently work with Symlinks.
-        //if(!$this->directRequest()) return;
+        if(!$this->directRequest()) return;
 
         // Just eval the code and exit.
         if($this->code) {
@@ -44,7 +43,7 @@ class Scander {
 
     // See if this is the executing script (and it isn't just included).
     static function directRequest() {
-        return str_replace('\\', '/', __FILE__) == $_SERVER['SCRIPT_FILENAME'];
+        return __FILE__ == realpath($_SERVER['SCRIPT_FILENAME']);
     }
 
     // Sets up starting variables.
