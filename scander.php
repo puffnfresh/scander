@@ -5,6 +5,7 @@ class Scander {
 
     var $code;
 
+    var $magic_quotes = false;
     var $init_scripts = array();
 
     // Runs when initialized.
@@ -18,15 +19,16 @@ class Scander {
 
         $this->setup();
 
-        if(!$this->directRequest()) return;
+        // FIXME: Doesn't currently work with Symlinks.
+        //if(!$this->directRequest()) return;
 
-	// Just eval the code and exit.
-	if($this->code) {
-            echo eval($this->code);
+        // Just eval the code and exit.
+        if($this->code) {
+            echo eval($this->gpc($this->code));
             return;
-	}
+        }
 
-	// User just requested a page, show it to them.
+        // User just requested a page, show it to them.
         $content = '';
         switch($this->action) {
         case 'eval':
@@ -54,8 +56,8 @@ class Scander {
             $this->action = 'list';
         }
 
-	if($_POST['code']) {
-	    $this->code = $_POST['code'];
+        if($_POST['code']) {
+            $this->code = $_POST['code'];
         }
     }
 
@@ -65,6 +67,14 @@ class Scander {
         $ob = ini_get("output_buffering");
 
         return $ob;
+    }
+
+    // Damn magic_quotes.
+    static function gpc($string) {
+        if(get_magic_quotes_gpc()) {
+            return stripslashes($string);
+        }
+        return $string;
     }
 
     // Add some javascript to run when the document has loaded.
