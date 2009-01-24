@@ -185,8 +185,8 @@ function initJS() {
     </div>
     <div id="navigation">
         <ul>
-            <li><a href="">Home</a></li>
-            <li><a href="">Eval</a></li>
+            <li><a href="<?php echo $this->url . '?action=list'; ?>">Home</a></li>
+            <li><a href="<?php echo $this->url . '?action=eval'; ?>">Eval</a></li>
         </ul>
     </div>
     <div id="content">
