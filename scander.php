@@ -1,5 +1,6 @@
 <?php
 class Scander {
+    var $ds = '/';
     var $current_dir = '';
     var $action = '';
 
@@ -42,12 +43,15 @@ class Scander {
     }
 
     // See if this is the executing script (and it isn't just included).
-    static function directRequest() {
-        return __FILE__ == realpath($_SERVER['SCRIPT_FILENAME']);
+    function directRequest() {
+        $local_path = str_replace('/', $this->ds, $_SERVER['SCRIPT_FILENAME']);
+        return __FILE__ == realpath($local_path);
     }
 
     // Sets up starting variables.
     function setup() {
+        $this->ds = DIRECTORY_SEPARATOR;
+
         $this->current_dir = getcwd();
 
         $this->action = $_GET['action'];
@@ -115,13 +119,29 @@ class Scander {
         ob_start();
 ?>
 <table>
-    <tr><th>Filename</th></tr>
+    <tr>
+        <th>Type</th>
+        <th>Filename</th>
+        <th>Size</th>
+        <th>Modified</th>
+        <th>&nbsp;</th>
+        <th>&nbsp;</th>
+        <th>&nbsp;</th>
+    </tr>
 <?php
-         foreach($filenames as $file):
+        foreach($filenames as $file):
 ?>
-    <tr><td><?php echo $file; ?></td></tr>
+    <tr>
+        <td><?php echo is_dir($file) ? 'D': 'F'; ?></td>
+        <td><a href="<?php echo $this->url; ?>?action=goto&amp;f=<?php echo $file; ?>"><?php echo $file; ?></a></td>
+        <td><?php echo number_format(filesize($file)); ?>B</td>
+        <td><?php echo date('Y-m-d H:i:s', filemtime($file)); ?></td>
+        <td>Delete</td>
+        <td>Rename</td>
+        <td><a href="<?php echo $this->url; ?>?action=edit&amp;f=<?php echo $file; ?>"><?php echo is_dir($file) ? '' : 'Edit'; ?></a></td>
+    </tr>
 <?php
-         endforeach;
+        endforeach;
 ?>
 </table>
 <?php
@@ -170,11 +190,13 @@ body {
 }
 </style>
 <script type="text/javascript">
+<![CDATA[
 function initJS() {
     <?php echo implode('', $this->init_scripts); ?>
 }
 
 <?php echo $this->getJS(); ?>
+]]>
 </script>
 </head>
 
@@ -185,8 +207,8 @@ function initJS() {
     </div>
     <div id="navigation">
         <ul>
-            <li><a href="<?php echo $this->url . '?action=list'; ?>">Home</a></li>
-            <li><a href="<?php echo $this->url . '?action=eval'; ?>">Eval</a></li>
+            <li><a href="<?php echo $this->url; ?>?action=list">Home</a></li>
+            <li><a href="<?php echo $this->url; ?>?action=eval">Eval</a></li>
         </ul>
     </div>
     <div id="content">
