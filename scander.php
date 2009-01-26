@@ -2,6 +2,7 @@
 class Scander {
     var $ds = '/';
     var $current_dir = '';
+    var $file = '';
     var $action = '';
 
     var $code;
@@ -34,6 +35,13 @@ class Scander {
         case 'eval':
             $content = $this->getEval();
             break;
+
+        // Print out the file else follow through if it's a directory.
+        case 'goto':
+            if(is_file($this->file)) {
+                echo file_get_contents($this->file);
+                return;
+            }
         case 'list':
         default:
             $content = $this->getList();
@@ -43,8 +51,9 @@ class Scander {
     }
 
     // See if this is the executing script (and it isn't just included).
-    function directRequest() {
-        $local_path = str_replace('/', $this->ds, $_SERVER['SCRIPT_FILENAME']);
+    static function directRequest() {
+        $ds = DIRECTORY_SEPARATOR;
+        $local_path = str_replace('/', $ds, $_SERVER['SCRIPT_FILENAME']);
         return __FILE__ == realpath($local_path);
     }
 
@@ -52,7 +61,15 @@ class Scander {
     function setup() {
         $this->ds = DIRECTORY_SEPARATOR;
 
+
+        if($_GET['file']) {
+            $this->file = $_GET['file'];
+        }
+
         $this->current_dir = getcwd();
+        if(is_dir($this->file)) {
+            $this->current_dir = $this->file;
+        }
 
         $this->action = $_GET['action'];
         if(empty($this->action)) {
@@ -130,15 +147,16 @@ class Scander {
     </tr>
 <?php
         foreach($filenames as $file):
+            $fullpath = realpath($this->current_dir . $this->ds . $file);
 ?>
     <tr>
         <td><?php echo is_dir($file) ? 'D': 'F'; ?></td>
-        <td><a href="<?php echo $this->url; ?>?action=goto&amp;f=<?php echo $file; ?>"><?php echo $file; ?></a></td>
-        <td><?php echo number_format(filesize($file)); ?>B</td>
-        <td><?php echo date('Y-m-d H:i:s', filemtime($file)); ?></td>
+        <td><a href="<?php echo $this->url; ?>?action=goto&amp;file=<?php echo $fullpath; ?>"><?php echo $file; ?></a></td>
+        <td><?php echo number_format(filesize($fullpath)); ?>B</td>
+        <td><?php echo date('Y-m-d H:i:s', filemtime($fullpath)); ?></td>
         <td>Delete</td>
         <td>Rename</td>
-        <td><a href="<?php echo $this->url; ?>?action=edit&amp;f=<?php echo $file; ?>"><?php echo is_dir($file) ? '' : 'Edit'; ?></a></td>
+        <td><a href="<?php echo $this->url; ?>?action=edit&amp;file=<?php echo $file; ?>"><?php echo is_dir($file) ? '' : 'Edit'; ?></a></td>
     </tr>
 <?php
         endforeach;
