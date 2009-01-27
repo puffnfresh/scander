@@ -2,6 +2,7 @@
 class Scander {
     var $ds = '/';
     var $current_dir = '';
+    var $working_dir = '';
     var $file = '';
     var $action = '';
 
@@ -35,13 +36,12 @@ class Scander {
         case 'eval':
             $content = $this->getEval();
             break;
-
-        // Print out the file else follow through if it's a directory.
-        case 'goto':
-            if(is_file($this->file)) {
-                echo file_get_contents($this->file);
-                return;
-            }
+        case 'download':
+                if(is_file($this->file)) {
+                    header('Content-Type: ' . mime_content_type($this->file));
+                    echo file_get_contents($this->file);
+                    return;
+                }
         case 'list':
         default:
             $content = $this->getList();
@@ -62,14 +62,14 @@ class Scander {
         $this->ds = DIRECTORY_SEPARATOR;
 
 
-        if($_GET['file']) {
-            $this->file = $_GET['file'];
-        }
-
         $this->current_dir = getcwd();
-        if(is_dir($this->file)) {
-            $this->current_dir = $this->file;
-        }
+        if($_GET['dir']) {
+            $this->working_dir = $_GET['dir'];
+        } else {
+            $this->working_dir = $this->current_dir;
+	}
+
+        $this->file = $_GET['file'];
 
         $this->action = $_GET['action'];
         if(empty($this->action)) {
@@ -132,7 +132,7 @@ class Scander {
 
     // Get a list of the files in the current directory.
     function getList() {
-        $filenames = scandir($this->current_dir);
+        $filenames = scandir($this->working_dir);
         ob_start();
 ?>
 <table>
@@ -147,16 +147,18 @@ class Scander {
     </tr>
 <?php
         foreach($filenames as $file):
-            $fullpath = realpath($this->current_dir . $this->ds . $file);
+            $fullpath = realpath($this->working_dir . $this->ds . $file);
+            $action = is_dir($fullpath) ? 'list' : 'download';
+            $target = is_dir($fullpath) ? 'dir' : 'file';
 ?>
     <tr>
-        <td><?php echo is_dir($file) ? 'D': 'F'; ?></td>
-        <td><a href="<?php echo $this->url; ?>?action=goto&amp;file=<?php echo $fullpath; ?>"><?php echo $file; ?></a></td>
+        <td><?php echo is_dir($fullpath) ? 'D': 'F'; ?></td>
+        <td><a href="<?php echo $this->url; ?>?action=<?php echo $action; ?>&amp;<?php echo $target; ?>=<?php echo $fullpath; ?>"><?php echo $file; ?></a></td>
         <td><?php echo number_format(filesize($fullpath)); ?>B</td>
         <td><?php echo date('Y-m-d H:i:s', filemtime($fullpath)); ?></td>
         <td>Delete</td>
         <td>Rename</td>
-        <td><a href="<?php echo $this->url; ?>?action=edit&amp;file=<?php echo $file; ?>"><?php echo is_dir($file) ? '' : 'Edit'; ?></a></td>
+        <td><a href="<?php echo $this->url; ?>?action=<?php echo $action; ?>&amp;<?php echo $target; ?>=<?php echo $file; ?>"><?php echo is_dir($fullpath) ? '' : 'Edit'; ?></a></td>
     </tr>
 <?php
         endforeach;
@@ -174,7 +176,7 @@ class Scander {
             "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
-<title>Scander - <?php echo htmlentities($this->current_dir); ?></title>
+<title>Scander - <?php echo htmlentities($this->working_dir); ?></title>
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <style type="text/css">
 body {
