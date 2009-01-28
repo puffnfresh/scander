@@ -37,11 +37,11 @@ class Scander {
             $content = $this->getEval();
             break;
         case 'download':
-                if(is_file($this->file)) {
-                    header('Content-Type: ' . mime_content_type($this->file));
-                    echo file_get_contents($this->file);
-                    return;
-                }
+            if(is_file($this->file)) {
+                header('Content-Type: ' . mime_content_type($this->file));
+                echo file_get_contents($this->file);
+                return;
+            }
         case 'list':
         default:
             $content = $this->getList();
@@ -115,7 +115,7 @@ class Scander {
     function getEval() {
         ob_start();
 ?>
-<form action="" onsubmit="evalPHP();return false;">
+<form action="#" onsubmit="evalPHP();return false;">
     <div>
         <textarea id="eval_textarea" cols="80"
             rows="24"><?php echo $eval; ?></textarea>
@@ -147,7 +147,11 @@ class Scander {
     </tr>
 <?php
         foreach($filenames as $file):
+            if(is_dir($this->working_dir . $this->ds . $file)) {
+                $file .= $this->ds;
+            }
             $fullpath = realpath($this->working_dir . $this->ds . $file);
+
             $action = is_dir($fullpath) ? 'list' : 'download';
             $target = is_dir($fullpath) ? 'dir' : 'file';
 ?>
@@ -210,13 +214,11 @@ body {
 }
 </style>
 <script type="text/javascript">
-<![CDATA[
 function initJS() {
     <?php echo implode('', $this->init_scripts); ?>
 }
 
 <?php echo $this->getJS(); ?>
-]]>
 </script>
 </head>
 
