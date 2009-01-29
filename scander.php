@@ -1,5 +1,7 @@
 <?php
 class Scander {
+    var $version = '2.0.0';
+
     var $ds = '/';
     var $current_dir = '';
     var $working_dir = '';
@@ -39,6 +41,12 @@ class Scander {
         case 'download':
             if(is_file($this->file)) {
                 header('Content-Type: ' . mime_content_type($this->file));
+
+                // Just to make the file download have the right name.
+                $basename = basename($this->file);
+                header('Content-Disposition: inline; '.
+                       'filename="' . $basename . '"');
+
                 echo file_get_contents($this->file);
                 return;
             }
@@ -67,7 +75,7 @@ class Scander {
             $this->working_dir = $_GET['dir'];
         } else {
             $this->working_dir = $this->current_dir;
-	}
+        }
 
         $this->file = $_GET['file'];
 
@@ -80,11 +88,11 @@ class Scander {
             $this->code = $_POST['code'];
         }
 
-	// Figure out what URL we accessed scander from (without the GET params).
-	$request_uri = $_SERVER['REQUEST_URI'];
-	$query = $_SERVER['QUERY_STRING'];
+        // Figure out what URL we accessed scander from (without the GET params).
+        $request_uri = $_SERVER['REQUEST_URI'];
+        $query = $_SERVER['QUERY_STRING'];
         $query_pos = strrpos($request_uri, $query);
-	if($query_pos + strlen($query) == strlen($request_uri)) {
+        if($query_pos + strlen($query) == strlen($request_uri)) {
             $url = substr($_SERVER['REQUEST_URI'], 0, $query_pos);
             $this->url = rtrim($url, '?&');
         }
@@ -115,6 +123,7 @@ class Scander {
     function getEval() {
         ob_start();
 ?>
+<h2>PHP Evaluation</h2>
 <form action="#" onsubmit="evalPHP();return false;">
     <div>
         <textarea id="eval_textarea" cols="80"
@@ -135,8 +144,9 @@ class Scander {
         $filenames = scandir($this->working_dir);
         ob_start();
 ?>
-<table>
-    <tr>
+<h2>Listing - <?php echo $this->working_dir; ?></h2>
+<table id="file_list">
+    <tr class="heading">
         <th>Type</th>
         <th>Filename</th>
         <th>Size</th>
@@ -146,6 +156,7 @@ class Scander {
         <th>&nbsp;</th>
     </tr>
 <?php
+        $odd = false;
         foreach($filenames as $file):
             if(is_dir($this->working_dir . $this->ds . $file)) {
                 $file .= $this->ds;
@@ -154,15 +165,16 @@ class Scander {
 
             $action = is_dir($fullpath) ? 'list' : 'download';
             $target = is_dir($fullpath) ? 'dir' : 'file';
+            $odd = !$odd;
 ?>
-    <tr>
-        <td><?php echo is_dir($fullpath) ? 'D': 'F'; ?></td>
-        <td><a href="<?php echo $this->url; ?>?action=<?php echo $action; ?>&amp;<?php echo $target; ?>=<?php echo $fullpath; ?>"><?php echo $file; ?></a></td>
-        <td><?php echo number_format(filesize($fullpath)); ?>B</td>
-        <td><?php echo date('Y-m-d H:i:s', filemtime($fullpath)); ?></td>
-        <td>Delete</td>
-        <td>Rename</td>
-        <td><a href="<?php echo $this->url; ?>?action=<?php echo $action; ?>&amp;<?php echo $target; ?>=<?php echo $file; ?>"><?php echo is_dir($fullpath) ? '' : 'Edit'; ?></a></td>
+    <tr class="<?php echo $target; ?> <?php echo $odd ? 'odd' : 'even'; ?>">
+        <td class="type"><?php echo is_dir($fullpath) ? 'D': 'F'; ?></td>
+        <td class="filename"><a href="<?php echo $this->url; ?>?action=<?php echo $action; ?>&amp;<?php echo $target; ?>=<?php echo $fullpath; ?>"><?php echo $file; ?></a></td>
+        <td class="size"><?php echo number_format(filesize($fullpath)); ?>B</td>
+        <td class="modified"><?php echo date('Y-m-d H:i:s', filemtime($fullpath)); ?></td>
+        <td class="delete">Delete</td>
+        <td class="rename">Rename</td>
+        <td class="edit"><a href="<?php echo $this->url; ?>?action=edit&amp;<?php echo $target; ?>=<?php echo $file; ?>"><?php echo is_dir($fullpath) ? '' : 'Edit'; ?></a></td>
     </tr>
 <?php
         endforeach;
@@ -184,15 +196,39 @@ class Scander {
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <style type="text/css">
 body {
-    background: #FFE;
+    background: #FFF5E5;
     font-family: sans-serif;
     margin: 0;
     padding: 0;
 }
 
+a {
+    color: #630;
+}
+
+a:hover {
+    background: #FEA;
+}
+
 #container {
+    padding: 1em;
+    background: #FFE;
     margin: 0 auto;
-    width: 80%;
+    width: 50em;
+}
+
+#navigation ul {
+    margin: 0;
+    padding: 0;
+}
+
+#navigation ul li {
+    display: inline;
+}
+
+#footer {
+    padding-top: 1em;
+    text-align: center;
 }
 
 #eval_textarea {
@@ -207,6 +243,35 @@ body {
     white-space: pre;
     font-family: monospace;
     padding: 1em;
+}
+
+#file_list {
+    width: 100%;
+}
+
+#file_list td {
+    text-align: center;
+    /*padding: 0;*/
+}
+
+#file_list a {
+    display: block;
+}
+
+#file_list .dir a:hover {
+    background: #FED;
+}
+
+#file_list .odd {
+    background: #FEC;
+}
+
+#file_list .filename {
+    text-align: left;
+}
+
+#file_list .size {
+    text-align: right;
 }
 
 .eval_error {
@@ -235,6 +300,9 @@ function initJS() {
     </div>
     <div id="content">
         <?php echo $content; ?>
+    </div>
+    <div id="footer">
+        Scander <?php echo $this->version; ?> by <a href="http://github.com/pufuwozu">Brian McKenna</a>
     </div>
 </div>
 </body>
