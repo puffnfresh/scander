@@ -27,7 +27,7 @@ class Scander {
         if(!$this->directRequest()) return;
 
         // Just eval the code and exit.
-        if($this->code) {
+        if(isset($this->code)) {
             echo eval($this->gpc($this->code));
             return;
         }
@@ -84,7 +84,7 @@ class Scander {
             $this->action = 'list';
         }
 
-        if($_POST['code']) {
+        if(isset($_POST['code'])) {
             $this->code = $_POST['code'];
         }
 
