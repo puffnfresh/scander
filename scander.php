@@ -38,9 +38,24 @@ class Scander {
         case 'eval':
             $content = $this->getEval();
             break;
+        case 'upload':
+            $content = $this->getUpload();
+            break;
+        case 'new':
+            $content = $this->getNew();
+            break;
+        case 'edit':
+            $content = $this->getEdit();
+            break;
         case 'download':
             if(is_file($this->file)) {
-                header('Content-Type: ' . mime_content_type($this->file));
+                if(function_exists("mime_content_type")) {
+	// Detect the mime-type.
+                    header('Content-Type: ' . mime_content_type($this->file));
+                } else {
+	// Just supply a bogus mime type so they can download it.
+                    header('Content-Type: scander/download-file');
+                }
 
                 // Just to make the file download have the right name.
                 $basename = basename($this->file);
@@ -119,6 +134,59 @@ class Scander {
         $this->init_scripts[] = $js;
     }
 
+    function getUpload() { 
+        ob_start();
+?>
+<h2>Upload File - <?php echo $this->working_dir; ?></h2>
+<form action="<?php echo $this->url; ?>" method="post" enctype="multipart/form-data">
+<input type="file" name="upload_file" />
+<div>
+    <input type="submit" value="Upload" />
+    <input type="reset" value="Reset" />
+</div>
+</form>
+<?php
+        return ob_get_clean();
+    }
+
+    // Get a new file dialog.
+    function getNew() {
+        ob_start();
+?>
+<h2>New File - <?php echo $this->working_dir; ?></h2>
+<form action="<?php echo $this->url; ?>" method="post">
+<div>
+    <label for="file_name">Filename</label>
+    <input id="file_name" name="file_name" type="text" />
+</div>
+<div>
+    <label for="file_content">Content</label>
+    <textarea id="file_content" name="file_content" cols="80" rows="24"></textarea>
+</div>
+<div>
+    <input type="submit" value="Save" />
+    <input type="reset" value="Reset" />
+</div>
+</form>
+<?php
+        return ob_get_clean();
+    }
+
+    function getEdit() {
+        ob_start();
+?>
+<h2>Edit File - <?php echo $this->file; ?></h2>
+<form action="<?php echo $this->url; ?>" method="post">
+<textarea id="file_content" name="file_content" cols="80" rows="24"><?php echo htmlentities(file_get_contents($this->file)); ?></textarea>
+<div>
+    <input type="submit" value="Save" />
+    <input type="reset" value="Reset" />
+</div>
+</form>
+<?php
+        return ob_get_clean();
+    }
+
     // Get a PHP evaluator.
     function getEval() {
         ob_start();
@@ -174,7 +242,7 @@ class Scander {
         <td class="modified"><?php echo date('Y-m-d H:i:s', filemtime($fullpath)); ?></td>
         <td class="delete">Delete</td>
         <td class="rename">Rename</td>
-        <td class="edit"><a href="<?php echo $this->url; ?>?action=edit&amp;<?php echo $target; ?>=<?php echo $file; ?>"><?php echo is_dir($fullpath) ? '' : 'Edit'; ?></a></td>
+        <td class="edit"><a href="<?php echo $this->url; ?>?action=edit&amp;<?php echo $target; ?>=<?php echo $fullpath; ?>"><?php echo is_dir($fullpath) ? '' : 'Edit'; ?></a></td>
     </tr>
 <?php
         endforeach;
@@ -210,6 +278,10 @@ a:hover {
     background: #FEA;
 }
 
+label {
+    display: block;
+}
+
 #container {
     padding: 1em;
     background: #FFE;
@@ -231,7 +303,7 @@ a:hover {
     text-align: center;
 }
 
-#eval_textarea {
+#eval_textarea, #file_name, #file_content {
     width: 100%;
 }
 
@@ -295,6 +367,8 @@ function initJS() {
     <div id="navigation">
         <ul>
             <li><a href="<?php echo $this->url; ?>?action=list">Home</a></li>
+            <li><a href="<?php echo $this->url; ?>?action=upload">Upload</a></li>
+            <li><a href="<?php echo $this->url; ?>?action=new">New</a></li>
             <li><a href="<?php echo $this->url; ?>?action=eval">Eval</a></li>
         </ul>
     </div>
