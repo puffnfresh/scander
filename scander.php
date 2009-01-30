@@ -50,10 +50,10 @@ class Scander {
         case 'download':
             if(is_file($this->file)) {
                 if(function_exists("mime_content_type")) {
-	// Detect the mime-type.
+                    // Detect the mime-type.
                     header('Content-Type: ' . mime_content_type($this->file));
                 } else {
-	// Just supply a bogus mime type so they can download it.
+                    // Just supply a bogus mime type so they can download it.
                     header('Content-Type: scander/download-file');
                 }
 
