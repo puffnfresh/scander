@@ -236,7 +236,10 @@ class Scander {
             $odd = !$odd;
 ?>
     <tr class="<?php echo $target; ?> <?php echo $odd ? 'odd' : 'even'; ?>">
-        <td class="type"><?php echo is_dir($fullpath) ? 'D': 'F'; ?></td>
+        <td class="type type_<?php echo $target; ?>">
+            <div class="icon"></div>
+            <span class="text"><?php echo is_dir($fullpath) ? 'D': 'F'; ?></span>
+        </td>
         <td class="filename"><a href="<?php echo $this->url; ?>?action=<?php echo $action; ?>&amp;<?php echo $target; ?>=<?php echo $fullpath; ?>"><?php echo $file; ?></a></td>
         <td class="size"><?php echo number_format(filesize($fullpath)); ?>B</td>
         <td class="modified"><?php echo date('Y-m-d H:i:s', filemtime($fullpath)); ?></td>
@@ -323,7 +326,25 @@ label {
 
 #file_list td {
     text-align: center;
-    /*padding: 0;*/
+}
+
+#file_list .type .text {
+    display: none
+}
+
+#file_list .type .icon {
+    width: 30px;
+    height: 30px;
+    margin: 0 auto;
+}
+
+#file_list .type_dir .icon {
+    background-image: url(icon_source.png);
+}
+
+#file_list .type_file .icon {
+    background-image: url(icon_source.png);
+    background-position: 30px;
 }
 
 #file_list a {
