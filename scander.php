@@ -84,7 +84,6 @@ class Scander {
     function setup() {
         $this->ds = DIRECTORY_SEPARATOR;
 
-
         $this->current_dir = getcwd();
         if($_GET['dir']) {
             $this->working_dir = $_GET['dir'];
@@ -295,10 +294,12 @@ label {
 #navigation ul {
     margin: 0;
     padding: 0;
+    list-style: none;
 }
 
 #navigation ul li {
-    display: inline;
+    float: left;
+    padding-right: 1em;
 }
 
 #footer {
@@ -332,19 +333,38 @@ label {
     display: none
 }
 
-#file_list .type .icon {
+#navigation .icon, #file_list .type .icon {
+    background-image: url(icon_source.png);
     width: 30px;
     height: 30px;
+}
+
+#navigation .icon, #file_list .type .icon {
     margin: 0 auto;
 }
 
+#navigation .home .icon {
+    background-position: 120px;
+}
+
+#navigation .new .icon {
+    background-position: 90px;
+}
+
+#navigation .upload .icon {
+    background-position: 600px;
+}
+
+#navigation .eval .icon {
+    background-position: 30px;
+}
+
 #file_list .type_dir .icon {
-    background-image: url(icon_source.png);
+    background-position: 0px;
 }
 
 #file_list .type_file .icon {
-    background-image: url(icon_source.png);
-    background-position: 30px;
+    background-position: 150px;
 }
 
 #file_list a {
@@ -352,7 +372,7 @@ label {
 }
 
 #file_list .dir a:hover {
-    background: #FED;
+    background: #FC9;
 }
 
 #file_list .odd {
@@ -365,6 +385,11 @@ label {
 
 #file_list .size {
     text-align: right;
+}
+
+#content {
+    padding-top: 0.5em;
+    clear: both;
 }
 
 .eval_error {
@@ -387,10 +412,30 @@ function initJS() {
     </div>
     <div id="navigation">
         <ul>
-            <li><a href="<?php echo $this->url; ?>?action=list">Home</a></li>
-            <li><a href="<?php echo $this->url; ?>?action=upload">Upload</a></li>
-            <li><a href="<?php echo $this->url; ?>?action=new">New</a></li>
-            <li><a href="<?php echo $this->url; ?>?action=eval">Eval</a></li>
+            <li class="home">
+                <a href="<?php echo $this->url; ?>?action=list&amp;dir=<?php echo $this->working_dir; ?>" title="Home">
+                    <div class="icon"></div>
+                    <span class="text">Home</span>
+                </a>
+            </li>
+            <li class="new">
+                <a href="<?php echo $this->url; ?>?action=new&amp;dir=<?php echo $this->working_dir; ?>" title="New">
+                    <div class="icon"></div>
+                    <span class="text">New</span>
+                </a>
+            </li>
+            <li class="upload">
+                <a href="<?php echo $this->url; ?>?action=upload&amp;dir=<?php echo $this->working_dir; ?>" title="Upload">
+                    <div class="icon"></div>
+                    <span class="text">Upload</span>
+                </a>
+            </li>
+            <li class="eval">
+                <a href="<?php echo $this->url; ?>?action=eval&amp;dir=<?php echo $this->working_dir; ?>" title="PHP Evaluation">
+                    <div class="icon"></div>
+                    <span class="text">Eval</span>
+                </a>
+            </li>
         </ul>
     </div>
     <div id="content">
