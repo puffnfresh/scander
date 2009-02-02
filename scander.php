@@ -211,7 +211,7 @@ class Scander {
         $filenames = scandir($this->working_dir);
         ob_start();
 ?>
-<h2>Listing - <?php echo $this->working_dir; ?></h2>
+<h2>Listing (<?php echo is_writable($this->working_dir) ? 'writable': 'read-only'; ?>) - <?php echo $this->working_dir; ?></h2>
 <table id="file_list">
     <tr class="heading">
         <th>Type</th>
@@ -418,6 +418,9 @@ function initJS() {
                     <span class="text">Home</span>
                 </a>
             </li>
+<?php
+        if(is_writable($this->working_dir)):
+?>
             <li class="new">
                 <a href="<?php echo $this->url; ?>?action=new&amp;dir=<?php echo $this->working_dir; ?>" title="New">
                     <div class="icon"></div>
@@ -430,6 +433,9 @@ function initJS() {
                     <span class="text">Upload</span>
                 </a>
             </li>
+<?php
+        endif;
+?>
             <li class="eval">
                 <a href="<?php echo $this->url; ?>?action=eval&amp;dir=<?php echo $this->working_dir; ?>" title="PHP Evaluation">
                     <div class="icon"></div>
