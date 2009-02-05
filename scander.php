@@ -35,6 +35,9 @@ class Scander {
         // User just requested a page, show it to them.
         $content = '';
         switch($this->action) {
+        case 'icons.png':
+            echo $this->getIcons();
+            return;
         case 'eval':
             $content = $this->getEval();
             break;
@@ -131,6 +134,34 @@ class Scander {
     // Add some javascript to run when the document has loaded.
     function addInitJS($js) {
         $this->init_scripts[] = $js;
+    }
+
+    function getIcons() {
+            header("Content-Type: image/png");
+            $pngdata = base64_decode("
+iVBORw0KGgoAAAANSUhEUgAAALQAAAAeCAYAAACFSjS6AAAABHNCSVQICAgIfAhkiAAAAAlwSFlz
+AAAN1wAADdcBQiibeAAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAARKSURB
+VHja7ZxbSBRRGIDXpVIsTJKiIkpiKXc3ieihp6ggMKML3SCNUgzrIQqjyKLSiYQekjJ8yR4ketqs
+rATFUBI2qK2XCi9sIYWY3VgvWO7imv79Z2pi193V2Z2ZM2em8/C9HGf/f/5zPoeZc86MBQAsrODz
++SARWltbO9xudwpLtbBcL9W85Y4mZCWtPjXFALtcLqivr+81mtR61Us1b7kDkCByDUnnQsvs6Jqa
+Gm2lvpi1QcQE9VLN+0doie/IUcTKhZbR0ZpJLTi3IP6/bDF6vVTzhgst8QbZyIWW0dGqS11m34Wd
+PxoyGKNim4HrpZo3utAS95FMLvQkGhsbxc4OhTzAKJfZcQA7fCzKQIyJfzNovVTzTi00IYBUILN1
+F7pusyUbaUe8k2hDZtMa4Fgok9lZjJ08PsVAjIvHaCT04Id2CNYWhkHa1KhXTt/193aLKO7n6YWW
+6EMOIkl6Cl2IQAwyDSu0YC+RPRDkWA2EHvJ6InKRNlpCB+pKIXDvLE2hJTzIuoSFRvH2Iu+QoQTw
+TyH0MNKJ7DSU0IL9QtyDQH5jIqHF3MIqgEvZMOh9SVtowgRyB1mciNCfppBSDboNI3S540qCAwDi
+b00idLAm71/O4K18PYSW+ImcR1LiETqmjI9zZ0DDVsWQGYKFISxgTmiLJQnPq1ph54MYg8QysNDD
+z+9G5B32PNBLaImPyJ6EhfbkzYXAuRWg0slEo4UZoQWLFQRHrWq1kVgkpgGF7v/aB+OVmyLyjl/b
+DP3fPusptEQbsjouoZt3JMNEmV1Lmf/c+LMgtLBxBghOl+r1kZgktgyxyMwFEXUyUa+U2BbtWGn2
+Q6nQ/qarMWsaab7OgtDwd+bpJjJfltDdRxdpLTOhQHehj9uS8WraoFmNJDbJMY1YZDpOaS4SQ6nQ
+Ax87YeLympg5JirWwkCPlwWhJQaRk8jMmEI/zLHC2IUsrWUm6/nJugotrE0Vb3u0/8dtEXMZQOiR
+pkoYq94Ov67nRMQnbeRvI09usCS0hBfJjSr060PzaFydK3R9KBRsaXgOzyjUKfFMzMm40Jrdu+sp
+9I9Sm9bJyTLyEl2FLnMeA8F+OxxHl4q3Gl0R8UlOLjTdWw73vjk0rlZ1TM5DC84qFR8Iq+IRi6WH
+QoMILe+h8MuJpTSEXs+FZnsemnGh5U3bNW2bRUPm18yuFHKhWRc6voWV98ULaQhdZEShO4vmQ9vu
+1DBIGxea0aXv+hwrBLWfqvPJOSkWhX6xPy1iJZW0caEZ3Zz0Kj/9K4Wr8xmmNydxoVkSWtn20TcF
+GUcGTi0f+llqG1WbwdPLh76XLKtifrcdg0LrtcF/oOcd+BsqwiBt/8UGf1ZewTKj0FrWSzWvkV7B
+4kJzoRUKzV+S5UKbQmj+GQNNhS6zHwbB8SgabwsyOp7uTv0SCmmLdbwYiwvNPzTD3FvfJq5XB6H5
+p8C40KYRmurHGn8DyLSE2zCB6OEAAAAASUVORK5CYII=");
+            return $pngdata;
     }
 
     function getUpload() { 
@@ -239,12 +270,24 @@ class Scander {
             <div class="icon"></div>
             <span class="text"><?php echo is_dir($fullpath) ? 'D': 'F'; ?></span>
         </td>
-        <td class="filename"><a href="<?php echo $this->url; ?>?action=<?php echo $action; ?>&amp;<?php echo $target; ?>=<?php echo $fullpath; ?>"><?php echo $file; ?></a></td>
-        <td class="size"><?php echo number_format(filesize($fullpath)); ?>B</td>
-        <td class="modified"><?php echo date('Y-m-d H:i:s', filemtime($fullpath)); ?></td>
-        <td class="delete">Delete</td>
-        <td class="rename">Rename</td>
-        <td class="edit"><a href="<?php echo $this->url; ?>?action=edit&amp;<?php echo $target; ?>=<?php echo $fullpath; ?>"><?php echo is_dir($fullpath) ? '' : 'Edit'; ?></a></td>
+        <td class="filename">
+            <a href="<?php echo $this->url; ?>?action=<?php echo $action; ?>&amp;<?php echo $target; ?>=<?php echo $fullpath; ?>"><?php echo $file; ?></a>
+        </td>
+        <td class="size">
+            <?php echo number_format(filesize($fullpath)); ?>B
+        </td>
+        <td class="modified">
+            <?php echo date('Y-m-d H:i:s', filemtime($fullpath)); ?>
+        </td>
+        <td class="delete">
+            <a href="<?php echo $this->url; ?>?action=delete&amp;<?php echo $target; ?>=<?php echo $fullpath; ?>" onclick="">Delete</a>
+        </td>
+        <td class="rename">
+            <a href="<?php echo $this->url; ?>?action=rename&amp;<?php echo $target; ?>=<?php echo $fullpath; ?>" onclick="">Rename</a>
+        </td>
+        <td class="edit">
+            <a href="<?php echo $this->url; ?>?action=edit&amp;<?php echo $target; ?>=<?php echo $fullpath; ?>"><?php echo is_dir($fullpath) ? '' : 'Edit'; ?></a>
+        </td>
     </tr>
 <?php
         endforeach;
@@ -334,7 +377,7 @@ label {
 }
 
 #navigation .icon, #file_list .type .icon {
-    background-image: url(icon_source.png);
+    background-image: url(<?php echo $this->url; ?>?action=icons.png);
     width: 30px;
     height: 30px;
 }
